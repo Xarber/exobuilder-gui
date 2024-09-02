@@ -7,8 +7,7 @@ const options = {
   getPreviousReleases: async ({ platform, target }) => {
     let data = await https.get("https://api.github.com/repos/Xarber/exobuilder-gui/releases").then(r=>r.JSON());
   
-    const ext = process.platform === 'win' ? ".exe" : ".zip";
-  
+    const ext = ((process.platform && process.platform === 'win32') || (platform && platform == 'win')) ? ".exe" : ".zip";
   
     let prevReleases = data.reduce((arr, release) => {
       release.assets

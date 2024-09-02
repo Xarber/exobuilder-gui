@@ -3,6 +3,7 @@ const DeltaUpdater = require("@electron-delta/updater");
 const child_process = require("child_process");
 const { existsSync, rm } = require('node:fs');
 const path = require('node:path');
+const isDevApp = process.env.APP_DEV ? (process.env.APP_DEV.trim() == "true") : false;
 
 let exobpathtmp = "";
 switch (process.platform) {
@@ -24,7 +25,7 @@ const webprefs = {
     preload: path.join(__dirname, 'preload.js'),
     nodeIntegration: true,
     contextIsolation: false,
-    devTools: process.env.APP_DEV ? (process.env.APP_DEV.trim() == "true") : false
+    devTools: isDevApp
 };
 
 const createWindow = () => {
@@ -91,16 +92,16 @@ if (app) {
         }
     });
 
-    const deltaUpdater = new DeltaUpdater({
-        logger: console,
-        autoUpdater: require("electron-updater").autoUpdater,
-        // Where delta.json is hosted, for github provider it's not required to set the hostURL
-        hostURL: "https://example.com/updates/windows/",
-    });
-    
-    try {await deltaUpdater.boot()} catch (e) {console.error(e)}
+    app.whenReady().then(async () => {
+        const deltaUpdater = new DeltaUpdater({
+            logger: console,
+            autoUpdater: require("electron-updater").autoUpdater,
+            // Where delta.json is hosted, for github provider it's not required to set the hostURL
+            hostURL: "https://example.com/updates/windows/",
+        });
+        
+        if (!process.env.APP_DEV) try {await deltaUpdater.boot()} catch (e) {console.error(e)}
 
-    app.whenReady().then(() => {
         global.mainWindow = createWindow();
 
         app.on('activate', () => {
@@ -118,7 +119,7 @@ if (app) {
     // });
 }
 module.exports = {
-    isDev: process.env.APP_DEV ? (process.env.APP_DEV.trim() == "true") : false,
+    isDev: isDevApp,
     https: require("https"),
     ExoBuilder: async (arguments)=>{
         let outpromise = new Promise((resolve, reject) => {

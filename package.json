@@ -1,6 +1,6 @@
 {
   "name": "exobuilder-gui",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "A simple graphical interface for exobuilder, made with electron js.",
   "main": "index.js",
   "devDependencies": {
@@ -26,6 +26,7 @@
     "publish": "env-cmd electron-forge publish"
   },
   "build": {
+    "afterAllArtifactBuild": ".electron-delta.js",
     "extraResources": [
       {
         "from": "./libs/",
@@ -44,6 +45,7 @@
   },
   "config": {
     "forge": {
+      "afterAllArtifactBuild": ".electron-delta.js",
       "packagerConfig": {
         "asar": true,
         "extraResource": [
