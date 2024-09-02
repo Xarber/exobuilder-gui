@@ -31,7 +31,7 @@ const options = {
     console.log("prevReleases", oldreleases);
   
     return oldreleases;
-  };
+  },
   sign: async (filePath) => {},
 };
 
