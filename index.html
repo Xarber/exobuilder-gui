@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="/assets/media/logo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="./libs/Ex0sArc4d3P1C.png" onerror="this.href = './resources/libs/Ex0sArc4d3P1C.png'" type="image/x-icon">
     <title>ExoBuilder</title>
     <style nonce="nonce-self-style">
         html, body {margin: 0;padding: 0;width: 100%;height: calc(100% - 1px);}
@@ -27,7 +27,16 @@
         * {transition: all 0.5s;font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;color: black;}
         h1, h2, h3, h4, h5, h6 {margin: 5px;}
         hr {height: 1px;width: 99%;border: 0;background-color: gray;}
-        p.details {margin: 2.5px 0 !important;background-color: rgba(0, 0, 0, 0.4);padding: 5px;border-radius: 5px;font-family: monospace;}
+        *:not(div).details {margin: 2.5px 0 !important;background-color: rgba(0, 0, 0, 0.4);padding: 5px;border-radius: 5px;font-family: monospace;}
+        *:not(div).detailsPadded {margin: 2.5px 5px !important;background-color: rgba(0, 0, 0, 0.4);padding: 15px 5px;border-radius: 5px;font-family: monospace;}
+        .codeblock {background-color: rgb(23, 32, 40);color: white;font-family: monospace;padding: 10px;margin: 2.5px;border-radius: 10px;resize: none;width: calc(100% - 30px);border: 1px solid black;overflow-y: auto;max-height: calc(100% - 30px);display: none}
+        .codeblock:has(*) {display: block;}
+        .codeblock > * {margin: 2px 0;padding: 0;font-family: monospace;color: darkgray;}
+        .codeblock > *.error {color: red;}
+        .codeblock > *.success {color: green;}
+        .codeblock > *.warn {color: darkgoldenrod;background-color: transparent;}
+        .codeblock > *.info {color: dodgerblue;}
+        textarea:active {outline: none;}
         svg:not(.keep-svg-color) {fill: black;}
         button {border: 0;border-radius: 10px;padding: 10px;margin: 2.5px;cursor: pointer;}
         button:hover {opacity: 0.8;}
@@ -82,6 +91,15 @@
         .notice h3 {margin: 0 0 5px 0;font-size: 20px;}
         .notice p {margin: 5px 0 0 0;font-size: 20px;}
 
+        .gamediv {display: none;background-color: rgba(0, 0, 0, 0.4);border-radius: 5px;padding: 10px;width: calc(100% - 25px);max-height: 160px;overflow-y: auto;}
+        .gamediv > .game {cursor: pointer;background-color: rgba(255, 255, 255, 0.1);border-radius: 2.5px;padding: 10px;width: calc(100% - 20px);margin: 2.5px 0;}
+        .gamediv > .game > h3 {margin: 2.5px 0;}
+        .gamediv > .game > p {margin: 2.5px 0;}
+        .gamediv:has(> .game) {display: block;}
+        .gamediv > .game > .completebar {height: 0;display: block;margin: auto;border-radius: 360px;width: 1px;background-color: lightgreen;}
+        .gamediv > .game.complete > progress {display: none;}
+        .gamediv > .game.complete > .completebar {width: 100%;height: 1px;margin: 10px auto auto 0;}
+
         @media (max-width: 1533px) {
             .appcontent > div > img {margin-top: 10px;}
         }
@@ -119,8 +137,21 @@
             <input id="settings-gittoken" onkeyup="localStorage.setItem(this.id, this.value);" placeholder="Unauthenticated" type="password">
         </div>
         <div class="settings-option">
+            <p>CLI Script: </p>
+            <p class="detailsPadded" id="exobuilder-call-script"></p>
+        </div>
+        <div class="settings-option">
             <p>Output directory: </p>
             <input id="settings-dir" onkeyup="localStorage.setItem(this.id, this.value);" placeholder="C:\... | OR | /home/... | OR | ./relativePath" value="out" type="text">
+        </div>
+        <div class="settings-option">
+            <p>CLI Script Type</p>
+            <select class="dropdown" name="" id="settings-cli-script-type" onchange="localStorage.setItem(this.id, this.value);">
+                <option value="aio" selected>AIO</option>
+                <option value="sync">Sync</option>
+                <option value="download">Download</option>
+                <option value="build">Build</option>
+            </select>
         </div>
         <div class="settings-option">
             <p>Pack data version</p>
@@ -212,9 +243,10 @@
             <button onclick="this.parentNode.parentNode.classList.add('hided');"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" viewBox="0 0 48 48"><path d="M22.5 38V25.5H10v-3h12.5V10h3v12.5H38v3H25.5V38Z"/></svg></button>
             <h1>More tools</h1>
         </div>
-        <button onclick="CHANGESEC('packcert', false)">Pack Certification</button>
+        <button onclick="CHANGESEC('packcert', false)" class="hided">Pack Certification</button>
         <button onclick="CHANGESEC('exosarcadeds', false)">Exo's Arcade Discord</button>
         <button onclick="CHANGESEC('switchsc', false)">Switch Serial Checker</button>
+        <button onclick="CHANGESEC('lanplay', false)">Lan Play Client</button>
         <button onclick="CHANGESEC('xidcloud', false)">XID Cloud Backup</button>
         <button onclick="CHANGESEC('browser', false)" class="hided">Unrestricted Browser</button>
         <button onclick="CHANGESEC('contentdownloader', false)" class="hided">Game Downloader</button>
@@ -225,10 +257,18 @@
             <h3>Browser Explorer</h3>
         </div>
     </div>
-    <div class="contentdownloader center hided hideme popupsec" style="width: calc(90% - 10px);height: calc(90% - 10px);">
+    <div class="contentdownloader center hided hideme popupsec" style="width: calc(90% - 10px);">
         <div class="header">
             <button onclick="this.parentNode.parentNode.classList.add('hided');"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" viewBox="0 0 48 48"><path d="M22.5 38V25.5H10v-3h12.5V10h3v12.5H38v3H25.5V38Z"/></svg></button>
             <h3>Content Downloader</h3>
+        </div>
+        <button style="width: calc(100% - 5px);margin-top: 5px;" onclick="if (!!window.electron) window.electron.ipcRenderer.invoke('linktgaccount', {prompt: 'prompt'}).then(r=>localStorage['tgtoken']=r)">Link / Relink telegram account</button>
+        <input type="text" id="contentdownloader-input" placeholder="Insert game name">
+        <div style="display: flex;margin-bottom: 5px;">
+            <button class="highlight" onclick="if (!!window.electron) window.electron.ipcRenderer.send('downloadTGame', {api_id: JSON.parse(localStorage['tgtoken'])[1].apiId, api_hash: JSON.parse(localStorage['tgtoken'])[1].apiHash, api_token: JSON.parse(localStorage['tgtoken'])[0], query: document.querySelector('input#contentdownloader-input').value});document.querySelector('input#contentdownloader-input').value = '';window.prompt('Download started!', {type: 'confirm', cancelText: false, confirmText: 'Okay!'})">Download game</button>
+            <button onclick="openExplorerin('downloads')">Open Downloaded Files</button>
+        </div>
+        <div class="gamediv">
         </div>
     </div>
     <div class="packcert center hided hideme popupsec" style="max-width: 700px;">
@@ -259,14 +299,36 @@
         </div>
         <iframe src="https://e.widgetbot.io/channels/804709896150057001/899944853918584933" allow="clipboard-write; fullscreen" width="100%" frameborder="0" style="border-radius: 5px;margin-top: 9.2px;height: calc(100% - 90px);"></iframe>
     </div>
+    <div class="lanplay center hided hideme popupsec" style="width: calc(90% - 10px);display: flex;flex-direction: column;">
+        <div class="header">
+            <button onclick="this.parentNode.parentNode.classList.add('hided');"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" viewBox="0 0 48 48"><path d="M22.5 38V25.5H10v-3h12.5V10h3v12.5H38v3H25.5V38Z"/></svg></button>
+            <h3>Lan Play Client</h3>
+        </div>
+        <div style="display: flex;margin-top: 10px;padding: 2.5px;">
+            <button class="highlight" onclick="if (window.lpc) {
+                window.lpc[0]();
+                delete(window.lpc);
+                document.querySelector('#lpc-output-codeblock').innerHTML += '<p class=\'success\'>Sent stop signal to Lan Play Client!</p>';
+            } else if (window.indexjs) {
+                document.querySelector('#lpc-output-codeblock').innerHTML += '<p class=\'success\'>Lan Play Client started!</p>';
+                window.lpc = indexjs.liveProcess(indexjs.lpcpath, '--relay-server-addr '+(document.querySelector('#lpc-custom-server').value.length>0?document.querySelector('#lpc-custom-server').value:'switch.servegame.com:11451'), (text)=>{var e = document.createElement('p');e.innerText = text;document.querySelector('#lpc-output-codeblock').appendChild(e);}, (text)=>{var e = document.createElement('p');e.classList.add('error');e.innerText = text;document.querySelector('#lpc-output-codeblock').appendChild(e);});
+                (async()=>{var exitcode = (await window.lpc[1])[0];document.querySelector('#lpc-output-codeblock').innerHTML += exitcode === null ? '<p class=\'success\'>Lan Play Client was stopped!</p>' : '<p class=\'error\'>Lan Play Client has stopped!</p>';if (window.lpc) delete(window.lpc);})();
+            }">LP Server On/Off</button>
+            <button onclick="alert('Lan Play Client Switch Configuration\n- Go in internet settings and \'Edit\' your connection\'s configuration.\n- Change \'IP Address Settings\' to \'Manual\'\n- Choose any custom IP, following this format: 10.13.AB.CD\n! - 10.13.37.1 is forbidden!\n- Set \'Subnet Mask\' to \'255.255.0.0\'\n- Set \'Gateway\' to \'10.13.37.1\'\n- Finally, save your settings and connect to the network.', {textOverride: 'LPC Config', isTitleDesc: true, confirmText: 'Okay!'})">Switch Setup</button>
+            <button onclick="alert('Waiting for WinPCap setup to exit...\nIf WinPCap doesn\'t launch, retry a couple of times and use compatibility settings when the system asks you to.\nEven better, you can also manually install NPCap instead (Located in LPC Files).', {textOverride: 'Waiting...', isTitleDesc: true, confirmText: false, awaitClose: (async function() {try {await indexjs.liveProcess('cmd', '/C '+indexjs.wpcpath)[1]}catch(e){return;}})()})">WinPCap Setup</button>
+            <button onclick="openExplorerin(indexjs.lpcpath.replace('lpc.exe', ''));">LPC Files</button>
+        </div>
+        <input type="text" placeholder="Custom Server Address | switch.servegame.com:11451" id="lpc-custom-server">
+        <div class="codeblock" style="flex-grow: 1;" id="lpc-output-codeblock"></div>
+    </div>
     <div class="switchsc center hided hideme popupsec" style="max-width: 700px;">
         <div class="header">
             <button onclick="this.parentNode.parentNode.classList.add('hided');"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" viewBox="0 0 48 48"><path d="M22.5 38V25.5H10v-3h12.5V10h3v12.5H38v3H25.5V38Z"/></svg></button>
             <h3>Switch Serial Checker</h3>
         </div>
         <p style="margin: 10px 5px">
-            Insert your switch's serial number (If you have the supported base model, you can read it below the console in a white sticker), and check if your console is software-hackable or not.
-            <br>OLEDs, LITEs, and normal switches with red boxes (XK serials / Mariko units) are not hackable without modchip.
+            Insert your switch's serial number (if you have the supported base model, you can read it below the console in a white sticker), and check if your console is software-hackable or not.
+            <br>OLEDs, LITEs, and normal switches with red boxes (XK serials / Mariko units) are not hackable without a modchip.
         </p>
         <input type="text" placeholder="Serial Number" onkeyup="if (this.value.length == 0) {document.querySelector('.switchscout').classList.add('hided')} else {
             ['hided', 'warn', 'important', 'info'].forEach(e=>document.querySelector('.switchscout').classList.remove(e));
@@ -287,7 +349,7 @@
             <h3>XID Cloud Backup</h3>
         </div>
         <p style="margin: 10px 5px">
-            You can sync your app's settings and certifications to the cloud after linking an XID Account!
+            You can sync your app settings and certifications to the cloud after linking an XID Account!
             <br>You can NOT backup packs to the cloud from this tool.
         </p>
         <div class="xidaccdata"></div>
@@ -314,11 +376,30 @@
         </div>
     </div>
     <div class="appcontent center">
+        <div class="update hided hideme">
+            <svg class="keep-svg-color" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#F19E39"><path d="m740-76 113-113-21-21-77 77v-171h-30v171l-77-77-21 21L740-76ZM480-823 213-669l267 155 266-155-266-154ZM120-310v-340q0-16 7.88-29.79Q135.75-693.57 150-702l300-173q8-5 14.95-6.5 6.95-1.5 15-1.5t15.55 1.5Q503-880 510-875l300 173q14.25 8.43 22.13 22.21Q840-666 840-650v210h-60v-180L481-445 180-619v309l300 173v69L150-258q-14.25-8.43-22.12-22.21Q120-294 120-310ZM730 0q-78 0-134-55.4t-56-134q0-78.6 56-134.6t134-56q78 0 134 55.87 56 55.86 56 135.13 0 78.43-56 133.72Q808 0 730 0ZM480-478Z"/></svg>
+            <div>
+                <h1>Update Available!</h1>
+                <p>The app found a <a rel="noopener" target="_blank" href="https://github.com/Xarber/exobuilder-gui/releases/latest">new update</a> available for download!</p>
+                <span class="details">No details</span><br>
+                <button class="highlight" onclick="CHANGESEC('updating');">Update Now</button>
+                <button onclick="HOME()">Ask Later</button>
+            </div>
+        </div>
+        <div class="updating hided hideme">
+            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e8eaed"><path d="M167-160v-60h130l-15-12q-64-51-93-111t-29-134q0-106 62.5-190.5T387-784v62q-75 29-121 96.5T220-477q0 63 23.5 109.5T307-287l30 21v-124h60v230H167Zm407-15v-63q76-29 121-96.5T740-483q0-48-23.5-97.5T655-668l-29-26v124h-60v-230h230v60H665l15 14q60 56 90 120t30 123q0 106-62 191T574-175Z"/></svg>
+            <div>
+                <h1>Installing update...</h1>
+                <p>Please don't close this window. The app will close once installed.</p>
+                <progress></progress>
+            </div>
+        </div>
         <div class="error hided hideme">
             <svg class="keep-svg-color" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#EA3323"><path d="m40-120 440-760 440 760H40Zm104-60h672L480-760 144-180Zm340.18-57q12.82 0 21.32-8.68 8.5-8.67 8.5-21.5 0-12.82-8.68-21.32-8.67-8.5-21.5-8.5-12.82 0-21.32 8.68-8.5 8.67-8.5 21.5 0 12.82 8.68 21.32 8.67 8.5 21.5 8.5ZM454-348h60v-224h-60v224Zm26-122Z"/></svg>
             <div>
                 <h1>Whoops...</h1>
                 <p id="errortext">An error occurred!</p>
+                <p class="details hided">No details</p>
                 <button class="highlight" onclick="HOME()">Go back</button>
             </div>
         </div>
@@ -373,7 +454,7 @@
                 localStorage.clear();
                 sessionStorage.clear();
             }
-            if (typeof require === "function") {require("electron").ipcRenderer.send("clearappdata")}
+            if (typeof window.electron != "undefined") {window.electron.ipcRenderer.send("clearappdata")}
             else {location.reload()}
         };
         (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) && document.body.classList.add("dark");
@@ -395,8 +476,9 @@
             if (!hidehome) document.querySelector(".apphome.hideme").classList.remove("hided");
             return document.querySelector("."+sec+".hideme").classList.remove("hided");
         }
-        function LoadParams(limited) {
-            var out = "--gittoken " + (document.querySelector('#settings-gittoken').value.length > 0 ? document.querySelector('#settings-gittoken').value : "empty");
+        function LoadParams(limited, hideGitToken) {
+            var out = "--gittoken " + (document.querySelector('#settings-gittoken').value.length > 0 ? 
+            (!!hideGitToken ? "*".repeat(document.querySelector('#settings-gittoken').value.length / 6) : document.querySelector('#settings-gittoken').value) : "empty");
             if (limited) {
                 out += " --restart";
                 if (document.querySelector('#settings-offline').checked) out += " --offline";
@@ -427,32 +509,122 @@
                 if (!!select) document.querySelector("#settings-version").value = select;
             });
         }
-
+        function watchObjectFunction(object = {}, methods = [], callback = function () {}) {
+            if (typeof methods === "string") methods = [methods];
+            for (let method of methods) {
+                const original = object[method].bind(object);
+                const newMethod = function (...args) {
+                    const result = original.apply(null, args);
+                    callback(method, result, ...args);
+                    return result;
+                };
+                object[method] = newMethod.bind(object);
+            }
+            return methods.length > 0;
+        }
         function loadData() {
             for (var key in localStorage) {
-            var value = localStorage[key];
+                if (key.indexOf('settings-') != 0) continue;
+                var value = localStorage[key];
                 if (document.querySelector('#'+key) && document.querySelector('#'+key).getAttribute("type") == "checkbox" && value == "true") document.querySelector('#'+key).checked = true;
                 if (document.querySelector('#'+key) && (document.querySelector('#'+key).getAttribute("type") == "text" || document.querySelector('#'+key).getAttribute("type") == "password")) document.querySelector('#'+key).value = value;
                 if (document.querySelector('#'+key) && document.querySelector('#'+key).tagName.toLowerCase() == "select") window.selectversion = value;
             }
         }
+        function updateSettingsScript() {
+            var scripts = {
+                sync: "ExoBuilder "+LoadParams(true, true)+" --prepare-only",
+                download: "ExoBuilder "+LoadParams(false, true)+" --offline --use-old-assets --build --asset-save-only --gittoken empty",
+                build: "ExoBuilder "+LoadParams(false, true)+" --exit --offline --use-old-assets --build --skip-download --gittoken empty",
+                aio: "ExoBuilder "+LoadParams(false, true)+" --build"
+            };
+            document.querySelector('#exobuilder-call-script').innerHTML = scripts[localStorage['settings-cli-script-type'] ?? "aio"];
+            return [scripts[localStorage['settings-cli-script-type'] ?? "aio"], scripts];
+        }
         loadData();
+        updateSettingsScript();
+        watchObjectFunction(localStorage, "setItem", updateSettingsScript);
 
         if (typeof require === "function") {
             const index = require("./index.js");
+            window.indexjs = index;
             const ExoBuilder = index.ExoBuilder;
             const fetch = index.https.get;
             const isDev = index.isDev;
             const fs = require("fs");
+            const cp = require("child_process");
+            const os = require("os");
+            window.electron = require("electron");
+            electron.ipcRenderer.on("updateAvailable", (e, message)=>{
+                if (isDev) console.log("Update Available! ", message);
+                document.querySelector(".hideme.update").querySelector('div').querySelector('span.details').innerText = "Version: "+message;
+                document.querySelector(".hideme.update").querySelector('div').querySelector('button.highlight').addEventListener('click', e=>electron.ipcRenderer.send("updateNow", message));
+                CHANGESEC("update");
+            });
+            electron.ipcRenderer.on('updateTDP', (e, message)=>{
+                message = JSON.parse(message);
+                /*{
+                    name: torrent.name,
+                    speed: torrent.downloadSpeed,
+                    progress: torrent.progress,
+                    complete: boolean
+                }*/
+                window.tdprogress ??= {};
+                window.tdprogress[message.name] = message;
+                for (var gameKey in window.tdprogress) {
+                    var game = window.tdprogress[gameKey];
+                    if (!document.querySelector('.contentdownloader').querySelector('.gamediv').querySelector('.game#'+game.name.replaceAll(' ', '_').replaceAll('[', '').replaceAll(']', ''))) {
+                        var gameDiv = document.createElement('div');
+                        var gameTitle = document.createElement('h3');
+                        var gameStatus = document.createElement('p');
+                        var gameCBar = document.createElement('div');
+                        var gamePBar = document.createElement('progress');
+                        gameDiv.id = game.name.replaceAll(' ', '_').replaceAll('[', '').replaceAll(']', '');
+                        gameDiv.classList.add("game");
+                        gameCBar.classList.add("completebar");
+                        gameDiv.onclick = ()=>openExplorerin("downloads");
+                        gameTitle.innerText = game.name;
+                        gamePBar.setAttribute('max', '1');
+                        gameDiv.appendChild(gameTitle);
+                        gameDiv.appendChild(gameStatus);
+                        gameDiv.appendChild(gameCBar);
+                        gameDiv.appendChild(gamePBar);
+                        document.querySelector('.contentdownloader').querySelector('.gamediv').appendChild(gameDiv);
+                    } else {
+                        var gameDiv = document.querySelector('.contentdownloader').querySelector('.gamediv').querySelector('.game#'+game.name.replaceAll(' ', '_').replaceAll('[', '').replaceAll(']', ''));
+                        var gameTitle = gameDiv.querySelector('h3');
+                        var gameStatus = gameDiv.querySelector('p');
+                        var gameCBar = gameDiv.querySelector('div.completebar');
+                        var gamePBar = gameDiv.querySelector('progress');
+                    }
+                    if (game.complete || game.progress >= 1) {
+                        gameDiv.classList.add("complete");
+                        gameStatus.innerText = "Hosting";
+                    } else {
+                        var gameInfoData = "";
+                        if (typeof game.progress != "undefined") gameInfoData += (game.progress * 100).toFixed(2)+"%";
+                        if (typeof game.progress != "undefined" && typeof game.speed != "undefined") gameInfoData += ", ";
+                        if (typeof game.speed != "undefined") gameInfoData += typeof game.speed === "number" ? (game.speed / 1000000).toFixed(2)+"MB/s" : game.speed;
+                        gameInfoData = (gameInfoData.length > 0) ? " ("+gameInfoData+")" : "...";
+                        gameStatus.innerText = `Downloading`+gameInfoData;
+                    }
+                    if (typeof game.progress != "undefined") gamePBar.setAttribute('value', game.progress === true ? "1" : game.progress);
+                }
+            })
+            electron.ipcRenderer.on('prompt', async (e, message)=>{
+                var promptReply = (await window.prompt(message, {cancelText: false}));
+                electron.ipcRenderer.send('promptreply', promptReply);
+                return promptReply;
+            });
 
             function EBPrepare() {
                 document.querySelectorAll(".hideme").forEach(e=>e.classList.add("hided"));
                 document.querySelector(".preparing.hideme").classList.remove("hided");
-                require("electron").ipcRenderer.send("setWindowProgress", "1.5");
+                electron.ipcRenderer.send("setWindowProgress", "1.5");
                 ExoBuilder(LoadParams(true)+" --prepare-only").then(r=>{
                     if (index.isDev) console.log("Command: "+LoadParams(true)+" --prepare-only", r);
                     document.querySelectorAll(".hideme").forEach(e=>e.classList.add("hided"));
-                    require("electron").ipcRenderer.send("setWindowProgress", "-1");
+                    electron.ipcRenderer.send("setWindowProgress", "-1");
                     (r.exitcode == 0) ? document.querySelector(".buildprompt.hideme").classList.remove("hided") : document.querySelector(".error.hideme").classList.remove("hided");
                 });
             }
@@ -476,8 +648,8 @@
                             var progressEl = e.querySelector("div").querySelector("progress");
                             var e2 = e.querySelector("div").querySelector("p.details");
                             if (status == "Working" && !!progress) {
-                                require("electron").ipcRenderer.send("setWindowProgress", (Number(progress.value)/Number(progress.max)));
-                            } else require("electron").ipcRenderer.send("setWindowProgress", "1.5");
+                                electron.ipcRenderer.send("setWindowProgress", (Number(progress.value)/Number(progress.max)));
+                            } else electron.ipcRenderer.send("setWindowProgress", "1.5");
                             if (!!progressEl) {
                                 if (!!progress && status == "Working") {
                                     progressEl.max = progress.max;
@@ -487,12 +659,13 @@
                             if (!!e2) {
                                 e2.innerText = details;
                                 e2.classList.remove("hided");
+                                if (e.classList.contains("error") && status != "Failed") e2.classList.add("hided");
                                 if (details.length < 1 || status != "Working") e2.classList.add("hided");
                             }
                         });
                     });
                 }, 1000);
-                require("electron").ipcRenderer.send("setWindowProgress", "1.5");
+                electron.ipcRenderer.send("setWindowProgress", "1.5");
                 ExoBuilder(LoadParams()+" --offline --use-old-assets --build --asset-save-only --gittoken empty").then(r=>{
                     if (index.isDev) console.log("Command: "+LoadParams()+" --offline --use-old-assets --build --asset-save-only --gittoken empty", r);
                     document.querySelectorAll(".hideme").forEach(e=>e.classList.add("hided"));
@@ -501,7 +674,7 @@
                         ExoBuilder(LoadParams()+" --exit --offline --use-old-assets --build --skip-download --gittoken empty").then(r2=>{
                             if (index.isDev) console.log("Command: "+LoadParams()+" --exit --offline --use-old-assets --build --skip-download --gittoken empty", r2);
                             document.querySelectorAll(".hideme").forEach(e=>e.classList.add("hided"));
-                            require("electron").ipcRenderer.send("setWindowProgress", "-1");
+                            electron.ipcRenderer.send("setWindowProgress", "-1");
                             (r2.exitcode == 0) ? document.querySelector(".success.hideme").classList.remove("hided") : document.querySelector(".error.hideme").classList.remove("hided");
                             fs.unwatchFile("buildcomponents/status.inf");
                         });
@@ -510,7 +683,7 @@
             }
             function openExplorerin(path, callback) {
                 var cmd = ``;
-                switch (require(`os`).platform().toLowerCase().replace(/[0-9]/g, ``).replace(`darwin`, `macos`)) {
+                switch (os.platform().toLowerCase().replace(/[0-9]/g, ``).replace(`darwin`, `macos`)) {
                     case `win`:
                         path = path || '=';
                         cmd = `explorer`;
@@ -524,7 +697,7 @@
                         cmd = `open`;
                         break;
                 }
-                let p = require(`child_process`).spawn(cmd, [path]);
+                let p = cp.spawn(cmd, [path]);
                 p.on('error', (err) => {
                     p.kill();
                     return callback(err);

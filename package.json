@@ -5,9 +5,7 @@
   "main": "index.js",
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",
-    "@electron-forge/maker-deb": "^7.4.0",
     "@electron-forge/maker-dmg": "^7.4.0",
-    "@electron-forge/maker-rpm": "^7.4.0",
     "@electron-forge/maker-squirrel": "^7.4.0",
     "@electron-forge/maker-zip": "^7.4.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
@@ -26,7 +24,6 @@
     "publish": "env-cmd electron-forge publish"
   },
   "build": {
-    "afterAllArtifactBuild": ".electron-delta.js",
     "extraResources": [
       {
         "from": "./libs/",
@@ -34,6 +31,14 @@
         "filter": [
           "**/*"
         ]
+      }
+    ],
+    "fileAssociations": [
+      {
+        "ext": "exbi",
+        "name": "ExoBuilder Info File",
+        "role": "Editor",
+        "perMachine": true
       }
     ],
     "mac": {
@@ -45,7 +50,6 @@
   },
   "config": {
     "forge": {
-      "afterAllArtifactBuild": ".electron-delta.js",
       "packagerConfig": {
         "asar": true,
         "extraResource": [
@@ -95,9 +99,12 @@
   "author": "Xarber",
   "license": "ISC",
   "dependencies": {
-    "@electron-delta/updater": "^0.1.17",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.2.1",
-    "env-cmd": "^10.1.0"
+    "env-cmd": "^10.1.0",
+    "ip": "^2.0.1",
+    "public-ip": "^7.0.1",
+    "telegram": "^2.24.11",
+    "webtorrent": "^2.5.0"
   }
 }
