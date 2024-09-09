@@ -316,7 +316,7 @@
             }">LP Server On/Off</button>
             <button onclick="alert('Lan Play Client Switch Configuration\n- Go in internet settings and \'Edit\' your connection\'s configuration.\n- Change \'IP Address Settings\' to \'Manual\'\n- Choose any custom IP, following this format: 10.13.AB.CD\n! - 10.13.37.1 is forbidden!\n- Set \'Subnet Mask\' to \'255.255.0.0\'\n- Set \'Gateway\' to \'10.13.37.1\'\n- Finally, save your settings and connect to the network.', {textOverride: 'LPC Config', isTitleDesc: true, confirmText: 'Okay!'})">Switch Setup</button>
             <button onclick="alert('Waiting for WinPCap setup to exit...\nIf WinPCap doesn\'t launch, retry a couple of times and use compatibility settings when the system asks you to.\nEven better, you can also manually install NPCap instead (Located in LPC Files).', {textOverride: 'Waiting...', isTitleDesc: true, confirmText: false, awaitClose: (async function() {try {await indexjs.liveProcess('cmd', '/C '+indexjs.wpcpath)[1]}catch(e){return;}})()})">WinPCap Setup</button>
-            <button onclick="openExplorerin(indexjs.lpcpath.replace('lpc.exe', ''));">LPC Files</button>
+            <button onclick="openExplorerin(indexjs.lpcpath.replace('lpc-linux', '').replace('lpc-macos', '').replace('lpc.exe', ''));">LPC Files</button>
         </div>
         <input type="text" placeholder="Custom Server Address | switch.servegame.com:11451" id="lpc-custom-server">
         <div class="codeblock" style="flex-grow: 1;" id="lpc-output-codeblock"></div>
@@ -573,13 +573,13 @@
                 window.tdprogress[message.name] = message;
                 for (var gameKey in window.tdprogress) {
                     var game = window.tdprogress[gameKey];
-                    if (!document.querySelector('.contentdownloader').querySelector('.gamediv').querySelector('.game#'+game.name.replaceAll(' ', '_').replaceAll('[', '').replaceAll(']', ''))) {
+                    if (!document.querySelector('.contentdownloader').querySelector('.gamediv').querySelector('.game#'+game.name.replaceAll(' ', '_').replaceAll('+', 'plus').replaceAll('[', '').replaceAll(']', '').replaceAll('.', ''))) {
                         var gameDiv = document.createElement('div');
                         var gameTitle = document.createElement('h3');
                         var gameStatus = document.createElement('p');
                         var gameCBar = document.createElement('div');
                         var gamePBar = document.createElement('progress');
-                        gameDiv.id = game.name.replaceAll(' ', '_').replaceAll('[', '').replaceAll(']', '');
+                        gameDiv.id = game.name.replaceAll(' ', '_').replaceAll('+', 'plus').replaceAll('[', '').replaceAll(']', '').replaceAll('.', '');
                         gameDiv.classList.add("game");
                         gameCBar.classList.add("completebar");
                         gameDiv.onclick = ()=>openExplorerin("downloads");
@@ -591,7 +591,7 @@
                         gameDiv.appendChild(gamePBar);
                         document.querySelector('.contentdownloader').querySelector('.gamediv').appendChild(gameDiv);
                     } else {
-                        var gameDiv = document.querySelector('.contentdownloader').querySelector('.gamediv').querySelector('.game#'+game.name.replaceAll(' ', '_').replaceAll('[', '').replaceAll(']', ''));
+                        var gameDiv = document.querySelector('.contentdownloader').querySelector('.gamediv').querySelector('.game#'+game.name.replaceAll(' ', '_').replaceAll('+', 'plus').replaceAll('[', '').replaceAll(']', '').replaceAll('.', ''));
                         var gameTitle = gameDiv.querySelector('h3');
                         var gameStatus = gameDiv.querySelector('p');
                         var gameCBar = gameDiv.querySelector('div.completebar');

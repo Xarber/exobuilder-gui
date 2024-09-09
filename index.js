@@ -83,6 +83,9 @@ function liveProcess (command, arguments, datacb, errcb) {
         bat.on("exit", (code) => {
             resolve([code, out]);
         });
+        bat.on("error", (e)=>{
+            resolve([false, e]);
+        });
     })];
 }
 
@@ -335,21 +338,25 @@ if (app) {
                             torrentDownloadPath + "/downloading",
                             process.pid.toString()
                         );
-                        await liveProcess("./usr/bin/transmission-cli", torrentPath+" -w downloads", (out, kill)=>{
-                            out = out.toString();
-                            if (out.indexOf('Seeding,') != -1) {
-                                console.log("Download complete");
-                                global.mainWindow.webContents.send('updateTDP', JSON.stringify({name: torrentName, speed: false, progress: false, complete: true}));
-                                fs.rmSync(torrentDownloadPath + "/downloading");
-                                kill();
-                            }
-                            if (out.indexOf('Progress:') === 0) {
-                                global.mainWindow.webContents.send('updateTDP', JSON.stringify({
-                                    name: torrentName,
-                                    speed: out.toString().substr(out.indexOf('('), out.indexOf(')')),
-                                    progress: Number(out.toString().replace('Progress: ', '').substr(0, out.indexOf('%'))) / 100,
-                                    complete: false
-                                }));
+                        await liveProcess("./usr/bin/transmission-cli", torrentPath+" -w downloads", (output, kill)=>{
+                            output = output.toString().split("\n\r");
+                            for (var out of output) {
+                                out = out.split("\r")[out.split("\r").length - 2] ?? out.split("\r")[out.split("\r").length - 1];
+                                if (out.indexOf('Seeding,') != -1) {
+                                    console.log("Download complete");
+                                    global.mainWindow.webContents.send('updateTDP', JSON.stringify({name: torrentName, speed: false, progress: false, complete: true}));
+                                    fs.rmSync(torrentDownloadPath + "/downloading");
+                                    fs.rmdirSync(torrentDownloadPath);
+                                    kill();
+                                }
+                                if (out.indexOf('Progress:') === 0) {
+                                    global.mainWindow.webContents.send('updateTDP', JSON.stringify({
+                                        name: torrentName,
+                                        speed: out.toString().substring(out.indexOf('(') + 1, out.indexOf(')')),
+                                        progress: Number(out.toString().substring(10, out.indexOf('%'))) / 100,
+                                        complete: Number(out.toString().substring(10, out.indexOf('%'))) / 100 >= 1
+                                    }));
+                                }
                             }
                         })[1]
                     }
