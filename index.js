@@ -425,7 +425,9 @@ if (app) {
     // require("./basetinfoilshop")();
     
     // New X-Shop Integration
-    require("./xshop")();
+    if (!fs.existsSync('games')) fs.mkdirSync('games');
+    if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
+    if (fs.existsSync('data')) require("./xshop")();
 
     // app.on('certificate-error', (e)=>{
     //     e.preventDefault();
