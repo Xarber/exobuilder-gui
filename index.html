@@ -573,13 +573,14 @@
                 window.tdprogress[message.name] = message;
                 for (var gameKey in window.tdprogress) {
                     var game = window.tdprogress[gameKey];
-                    if (!document.querySelector('.contentdownloader').querySelector('.gamediv').querySelector('.game#'+game.name.replaceAll(' ', '_').replaceAll('+', 'plus').replaceAll('[', '').replaceAll(']', '').replaceAll('.', ''))) {
+                    var gameDivTMP = document.getElementById('contentdownloader-gamediv-game-'+CSS.escape(game.name));
+                    if (!gameDivTMP) {
                         var gameDiv = document.createElement('div');
                         var gameTitle = document.createElement('h3');
                         var gameStatus = document.createElement('p');
                         var gameCBar = document.createElement('div');
                         var gamePBar = document.createElement('progress');
-                        gameDiv.id = game.name.replaceAll(' ', '_').replaceAll('+', 'plus').replaceAll('[', '').replaceAll(']', '').replaceAll('.', '');
+                        gameDiv.id = 'contentdownloader-gamediv-game-'+CSS.escape(game.name);
                         gameDiv.classList.add("game");
                         gameCBar.classList.add("completebar");
                         gameDiv.onclick = ()=>openExplorerin("downloads");
@@ -591,7 +592,7 @@
                         gameDiv.appendChild(gamePBar);
                         document.querySelector('.contentdownloader').querySelector('.gamediv').appendChild(gameDiv);
                     } else {
-                        var gameDiv = document.querySelector('.contentdownloader').querySelector('.gamediv').querySelector('.game#'+game.name.replaceAll(' ', '_').replaceAll('+', 'plus').replaceAll('[', '').replaceAll(']', '').replaceAll('.', ''));
+                        var gameDiv = gameDivTMP;
                         var gameTitle = gameDiv.querySelector('h3');
                         var gameStatus = gameDiv.querySelector('p');
                         var gameCBar = gameDiv.querySelector('div.completebar');

@@ -99,11 +99,18 @@
   "author": "Xarber",
   "license": "ISC",
   "dependencies": {
+    "deasync": "^0.1.30",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.2.1",
     "env-cmd": "^10.1.0",
+    "formidable": "^3.5.1",
+    "hi-base32": "^0.5.1",
     "ip": "^2.0.1",
+    "lookpath": "^1.2.2",
+    "otpauth": "^9.3.2",
     "public-ip": "^7.0.1",
+    "qrcode": "^1.5.4",
+    "request": "^2.88.2",
     "telegram": "^2.24.11",
     "webtorrent": "^2.5.0"
   }

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta content="IE=edge" http-equiv="X-UA-Compatible">
+        <meta content="width=device-width,initial-scale=1" name="viewport">
+        <title><?nodejs echo(arguments[3].settings.shp_ttl) ?></title>
+        <link href="<?nodejs echo(arguments[3].protocol + arguments[3].host) ?>/data/logo.png" rel="shortcut icon" type="image/x-icon">
+        <meta property="og:title" content="<?nodejs echo(arguments[3].settings.shp_ttl) ?>" />
+        <meta property="og:type" content="Rom Freeshop" />
+        <meta property="og:url" content="<?nodejs echo(arguments[3].protocol + arguments[3].host) ?>" />
+        <meta property="og:description" content="ROM Freeshop" />
+        <meta name="theme-color" content="#8400ff">
+        <meta content="ROM Freeshop" name="description">
+        <meta content="Freeshop, Switch, Games" name="keywords">
+        <meta content="Xarber#6814" name="author">
+        <style>
+            :root {
+                --blur-hide: 10px;
+                --blur-game: 2.5px;
+                --blur-butn: 10px;
+            }
+            body,html {padding: 0;margin: 0;width: 100%;height: 100%;background-color: #0f0f0f;width: 100%;height: 100%;margin: 0}
+            * {font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;color: #fff;transition: all 0.5s;animation: hide reverse 0.5s;}
+            *:focus {outline: none}
+            hr {border: 0;height: 2.5px;width: calc(100% - 10px);background-color: gray;border-radius: 360px}
+            button {all: unset;padding: 5px 10px;width: 100%;height: 30px;background-color: rgba(0,0,0,0);backdrop-filter: blur(var(--blur-butn));-webkit-backdrop-filter: blur(var(--blur-butn));border-radius: 5px;border: .1px solid white;margin: 2.5px;text-align: center;cursor: pointer;transition: all 0.5s;}
+            button:hover {background-color: rgba(255,255,255,0.2);background-image: linear-gradient(to bottom right, rgba(255, 188, 124, 0.39), rgba(120, 197, 255, 0.39));border: .1px solid rgba(255, 255, 255, 0.4)}
+            ::-webkit-scrollbar{width: 10px;height: 10px}
+            ::-webkit-scrollbar-track {background: 0 0}
+            ::-webkit-scrollbar-thumb {background-color: #ffffffa1;border-radius: 20px;border: 4px solid transparent;background-clip: content-box}
+            ::-webkit-scrollbar-thumb:hover {border: 4px solid transparent;background-color: #ffffffd7}
+            ::-webkit-scrollbar-corner {background-color: transparent;border: 0;visibility: hidden;opacity: 0;display: none}
+            .hided {animation: hide normal 0.5s;filter: blur(var(--blur-hide));-webkit-filter: blur(var(--blur-hide));opacity: 0;pointer-events: none;}
+            .removed {animation: remove normal 1s;filter: blur(var(--blur-hide));-webkit-filter: blur(var(--blur-hide));opacity: 0;max-height: 0px;pointer-events: none;margin: 0 !important;padding: 0 !important;}
+
+            .center{left:50%;top:50%;transform:translate(-50%,-50%);position:absolute}
+            .upload {position: fixed;z-index: 4;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, .4)}
+            .upload-form {display: flex;position: fixed;z-index: 5;width: calc(100% - 20px);left: 50%;top: 50%;transform: translate(-50%, -50%);max-width: 350px;padding: 5px;flex-flow: column;background-color: rgba(35, 35, 35);border-radius: 5px;box-shadow: 0 0 5px 0 rgba(0, 0, 0, .15)}
+            .upload-form h1 {margin: 0;padding: 0;font-size: 18px;font-weight: 500;color: #fff;text-align: center}
+            .upload-form p {margin: 0;text-align: center;font-size: 10px;color: rgba(255, 255, 255, .3)}
+            .upload-form button, .upload-form label {font-weight: 500;font-size: 14px;padding: 10px 12px;cursor: pointer}
+            .upload-form label {display: flex;flex-flow: column;justify-content: center;align-items: center;background-color: rgba(50, 50, 50, .7);border: 1px solid rgba(255, 255, 255, .3);color: #737476;margin: 10px 0;border-radius: 4px}
+            .upload-form label i {margin-right: 10px;padding: 5px 0;color: #dbdce0}
+            .upload-form label p {all: unset;}
+            .upload-form label span {display: flex;align-items: center;justify-content: center;font-size: 12px;word-break: break-all;color: #fff}
+            .upload-form label:hover {background-color: rgba(50, 50, 50, .5);border: 1px solid rgba(255, 255, 255, .3);color: #68686a}
+            .upload-form label:hover i {color: #cfd1d4}
+            .upload-form input[type=file] {appearance: none;visibility: hidden;height: 0;width: 0;padding: 0;margin: 0}
+            .upload-form .buttons {width: 100%;}
+            .upload-form button {width: calc(100% - 32px);}
+            .upload-form .progress {height: 20px;border-radius: 4px;margin: 10px 0;background-color: #e6e8ec}
+            .upload-form .result {padding-top: 15px;color: #fff;text-align: center}
+            .upload-form select {background-color: rgba(50, 50, 50, .7);border: 1px solid rgba(255, 255, 255, .3);color: white;margin: 10px 0;border-radius: 4px}
+
+            nav {position: sticky;z-index: 3;top: 5px;margin-bottom: 5px;background-color: #0f0f0f;width: calc(100% - 20px);height: 50px;margin: 4px;border: 1px solid #1f1e1e;border-radius: 10px;padding: 5px;}
+            nav * {float: left;}
+            nav img {height: 50%;aspect-ratio: 1/1;top:50%;transform:translateY(-50%);left: 12.5px;position: absolute;}
+            nav form {height: 100%;padding: 0;margin: 0;border: 0;margin-left: 50px;float: none;}
+            nav form input {width: calc(100% - 22px);height: calc(100% - 2px);background-color: #0f0f0f;border: 1px solid #1f1e1e;border-radius: 2.5px;padding: 0 0 0 20px;}
+
+            .home h1.big {text-align: center;font-weight: bold;color: #68686a;margin: 0}
+            .home p {margin: 0;text-align: center;margin-bottom: 10px;}
+            .home button {margin:2.5px 0;padding: 5px 0;}
+            .game {width: calc(100% - 12px);height: 200px;margin: 5px;border: 1px solid #1f1e1e;border-radius: 10px;position: relative;cursor: pointer;overflow: hidden;}
+            .game > div {background-size: cover;background-position: center;position: absolute;height: calc(100% - 10px);top:0;left: 0;width: calc(100% - 10px);z-index: 2;padding: 5px;border-radius: 10px;}
+            .game > div:first-child {filter: blur(var(--blur-game));-webkit-filter: blur(var(--blur-game));z-index: 1;}
+            .game > div:not(div:first-child) {background-color: rgba(0,0,0,0.4);}
+            .game img {height: 100%;float:left;margin-right: 5px;border-radius: 5px;background:rgba(0, 0, 0, .5)}
+            .game h4, .game p {margin: 0;}
+            .popup {position: fixed;z-index: 4;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, .4)}
+            .popup > div > h5 {margin: 1px;}
+            .popup > div {position: fixed;z-index: 5;width: calc(100% - 20px);max-width: 350px;padding: 5px;background-color: rgba(35, 35, 35);border-radius: 5px;box-shadow: 0 0 5px 0 rgba(0, 0, 0, .15)}
+            .popup > div > button {width: calc(100% - 27px);}
+            .popup.nsc > div > h5 {font-size: 15px;border-bottom: 1px solid #474545;padding-bottom: 5px;}
+            .settings > div {max-width: 600px;height: calc(100% - 20px);max-height: 550px;}
+            .settings > div > div {height: calc(100% - 110px);overflow-y: auto;overflow-x: hidden;}
+            .settings > div > div > div > div {background-color: rgba(0,0,0,0.3);border-radius: 5px;margin: 2.5px;padding: 5px;}
+            .settings > div > div > div > div p, .popup.nsc > div p {all: unset;}
+            .settings > div > div > div.top {display: flex;}
+            .settings > div > div > div.top > div {flex: 1;max-height: 290px;overflow-y: auto;overflow-x: hidden;}
+            .settings > div > div > div.contents {position: relative;width: 100%;height: 135px;display: flex;}
+            .settings > div > div > div.contents > div.container {flex: 1;overflow-y: auto;overflow-x: hidden;}
+            .settings > div > div > div input:not(input[type=checkbox]), .popup.nsc > div > input:not(input[type=checkbox]) {width: calc(100% - 7px);height: 25px;background-color: #0f0f0f;border: 1px solid #1f1e1e;border-radius: 2.5px;padding: 0 0 0 5px;}
+            .settings > div > div > div.contents > div.container > button {all: unset;cursor: pointer;font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;color: #fff;transition: all 0.5s;animation: hide reverse 0.5s;width: calc(100% - 5px);height: 20px;}
+            .settings > div > div > div.contents > div.container > button:hover {background-color: rgba(255, 255, 255, 0.1);}
+            .settings > div > div > div.contents > div.container > div, .settings > div > div > div.contents > div.container > button {border-radius: 2.5px;padding: 2.5px;}
+            .settings > div > div > div.contents > div.container > div:not(div:only-child), .settings > div > div > div.contents > div.container > button:not(button:only-child) {margin: 2.5px 0 2.5px 0;}
+            .settings > div > div > div.contents > div.container > div:first-child:not(div:only-child), .settings > div > div > div.contents > div.container > button:first-child:not(button:only-child) {margin: 0 0 2.5px 0;}
+            .settings > div > div > div.contents > div.container > div:last-child:not(div:only-child), .settings > div > div > div.contents > div.container > button:last-child:not(button:only-child) {margin: 2.5px 0 0 0;}
+            .settings > div > div > div.contents > div.container > div:hover {background-color: rgba(255,255,255,0.2);background-image: linear-gradient(to bottom right, rgba(255, 59, 0, 0.39), rgba(255, 98, 0, 0.39));backdrop-filter: blur(var(--blur-butn));-webkit-backdrop-filter: blur(var(--blur-butn));}
+            .settings > div > div > div.contents > div.container > div > img {float: left;height: 20px;margin: 0;margin-right: 2.5px;aspect-ratio: 1/1;}
+            .games > div, div.errorPopup {border: 1px solid #1f1e1e;border-radius: 10px;padding: 5px;margin: 5px;}
+            .games > div > h1, div.errorPopup > h1 {margin: 0 0 10px 0;border-bottom: 1px solid #1f1e1e;}
+            .games > div > div {height: 100%;width: 100%;overflow-y: hidden;overflow-x: scroll;}
+            .games > div > div > .game {width: unset;height: 120px;aspect-ratio: 1/1;float: left;}
+            .games > div > div > .game img {width: 100%;height: 100%;display: block;}
+            .pageSelector {width: calc(100% - 10px);height: 50px ;margin: 5px;border: 1px solid #1f1e1e;background-color: #0f0f0f;display: flex;border-radius: 10px;overflow: hidden;}
+            .pageSelector button {all: unset;cursor: pointer;height: 100%;aspect-ratio: 1/1;background-color: #0f0f0f;text-align: center;vertical-align: middle;line-height: 50px;}
+            .pageSelector p {all: unset;height: 100%;flex-grow: 1;text-align: center;vertical-align: middle;line-height: 50px;}
+
+            @media (max-width: 500px) {
+                .game img {height: 100px;}
+                .games > div > div > .game {height: 80px;margin: 1px;}
+                .settings > div > div > div.top {display: block;}
+                .settings > div > div > div.top > div {flex: unset;}
+                .settings > div > div > div.contents {display: block;}
+                .settings > div > div > div.contents > div.container {flex: unset;max-height: 150px;}
+            }
+            @media (max-width: 340px) {
+                .home h1.big {font-size: 25px;}
+                .home p {font-size: 15px;}
+                .game img {float: none;}
+            }
+            @media (max-width: 275px) {
+                .home {left:unset;transform:translateY(-50%);width: calc(100% - 10px);padding: 0 5px;}
+            }
+            @media (max-width: 230px) {
+                nav {height: 30px;}
+                nav img {left: 7.5px}
+                nav form {margin-left: 30px;}
+                nav form input {width:calc(100% - 12px);padding: 0 0 0 10px;}
+                .pageSelector {height: 30px;}
+                .pageSelector button {line-height: 30px;}
+                .pageSelector p {line-height: 30px;}
+                .game img, .game p {display: none;}
+                .game {height: 120px;}
+                .game h4 {font-weight: normal;font-size: 15px;}
+                .games > div > h1 {font-size: 15px;font-weight: normal;}
+                .games > div > div > .game {width: calc(100% - 4px);height: unset;aspect-ratio: 1/1;}
+            }
+            @keyframes hide {
+                0% {
+                    opacity: 1;
+                    filter: blur(0px);
+                    -webkit-filter: blur(0px);
+                }
+                100% {
+                    opacity: 0;
+                    filter: blur(var(--blur-hide));
+                    -webkit-filter: blur(var(--blur-hide));
+                }
+            }
+            @keyframes remove {
+                0% {
+                    max-height: 500px;
+                    opacity: 1;
+                    filter: blur(0px);
+                    -webkit-filter: blur(0px);
+                }
+                50% {
+                    max-height: 500px;
+                    opacity: 0;
+                    filter: blur(var(--blur-hide));
+                    -webkit-filter: blur(var(--blur-hide));
+                }
+                100% {
+                    max-height: 0px;
+                    opacity: 0;
+                    filter: blur(var(--blur-hide));
+                    -webkit-filter: blur(var(--blur-hide));
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="upload hided">
+            <form class="upload-form" action="/upload" enctype="multipart/form-data" method="post">
+                <input name="upload" type="hidden" value="1">
+                <h1>Upload ROM</h1>
+                <p>Upload ROMs for revision</p>
+                <label for="files">
+                    <i class="fa-2x fa-folder-open fa-solid"></i>
+                    <p>Select files ...</p>
+                </label>
+                <input name="file" id="files" multiple type="file">
+                <div class="progress"></div>
+                <select name="uplloc" id="uplloc" onchange="var btn = document.querySelector('button#upload-form-submit');if (this.value != 'uploads/') {btn.innerHTML = 'Upload [NEEDS KEY!]';btn.type = 'button';btn.setAttribute('onclick', 'document.querySelector(`#upload-confirm-key`).classList.remove(`hided`);');} else {btn.innerHTML = 'Upload';btn.type = 'submit';btn.setAttribute('onclick', '');}">
+                    <option value="uploads/" selected>uploads/</option>
+                    <?nodejs
+                    for (var upl of arguments[3].settings.uplloc) {
+                        echo(`<option value="${upl}">${upl}</option>`);
+                    }
+                    ?>
+                </select>
+                <div class="buttons">
+                    <button onclick="document.querySelector('.upload').classList.add('hided');" type="button">Close</button>
+                    <button type="submit" id="upload-form-submit">Upload</button>
+                </div>
+                <div class="result"></div>
+                <div class="popup nsc hided" id="upload-confirm-key"><div class="center">
+                    <h5>Authenticate</h5>
+                    <p>Admin Key</p>
+                    <input name="uplkey" type="password">
+                    <button type="submit" onclick="this.parentNode.parentNode.classList.add('hided');">Confirm</button>
+                    <button type="button" onclick="this.parentNode.parentNode.classList.add('hided');">Cancel</button>
+                </div></div>
+            </form>
+        </div>
+        <nav>
+            <img style="cursor: pointer" onclick="document.querySelector('div.games').innerHTML = '';document.querySelector('div.srs').innerHTML = '';sec(document.querySelector('body > div.home'))" src="<?nodejs echo(arguments[3].protocol + arguments[3].host) ?>/data/logo.png" alt="">
+            <form action="#" onsubmit="src(this.querySelector('input').value, document.querySelector('body > .srs'), document.querySelector('body > .games'));return false">
+                <input name="q" id="q" type="text" placeholder="Search">
+            </form>
+        </nav>
+        <div class="home center">
+            <h1 class="big"><?nodejs echo(arguments[3].settings.shp_ttl.toUpperCase().split('').join(' ')) ?></h1>
+            <p>Lots of games, only one page.</p>
+            <button onclick="document.querySelector('body > div.upload').classList.toggle('hided');">Upload ROMs</button>
+            <button onclick="document.querySelector('body > div.tinfoil').classList.toggle('hided');">Tinfoil CFG</button>
+            <button class="hided" onclick="loadFileBrowser();document.querySelector('body > div.filebrowser').classList.toggle('hided');">File Browser</button>
+            <button onclick="loadSettings();document.querySelector('body > div.settings').classList.toggle('hided');">Options</button>
+        </div>
+        <div class="games hided"></div>
+        <div class="srs hided"></div>
+        <div class="popup tinfoil hided"><div class="center">
+            <h5>File Browser Config</h5>
+            <p id="tinfoil-cfg-switch">
+                Protocol: <?nodejs echo(arguments[3].protocol) ?>
+                <br>Host: <?nodejs echo(arguments[3].host) ?>
+                <?nodejs var port = false;if (arguments[3].protocol === "https:" && arguments[4].port.https != 443) {port = arguments[4].port.https} else if (arguments[3].protocol === "http:" && arguments[4].port.http != 80) {port = arguments[4].port.http};if (port) echo('<br>Port: '+port) ?>
+                <?nodejs if (!!arguments[3].path && arguments[3].path.length > 1) echo('<br>Path: '+arguments[3].path) ?>
+                <?nodejs echo(!!arguments[3].auth ? '<br>User: '+arguments[3].auth.usr : '') ?>
+                <?nodejs echo(!!arguments[3].auth ? '<br>Pass: '+arguments[3].auth.pwd : '') ?>
+                <br>Title: <?nodejs echo(arguments[3].settings.shp_ttl) ?>
+                <br>Enabled: YES
+            </p>
+            <button onclick="document.querySelector('.tinfoil').classList.add('hided');">Close</button>
+        </div></div>
+        <div class="popup settings hided"><div class="center">
+            <h5>Settings</h5>
+            <div>
+                <div class="top">
+                    <div>
+                        <input type="checkbox" id="settings-autofile"> <p>Auto File</p><br>
+                        <input type="checkbox" id="settings-log_accesses"> <p>AccessLogs</p><br>
+                        <input type="checkbox" id="settings-save_web_key"> <p>Save Key</p><br>
+                        <input type="checkbox" id="settings-tinfoil_icons"> <p>TFL Icons</p><br>
+                        <input type="checkbox" id="settings-use_ttldb"> <p>Use TitleDB</p><br>
+                        <input type="checkbox" id="settings-csens_search"> <p>CS Search</p><br>
+                        <input type="checkbox" id="settings-smart_search"> <p>Smart Search</p><br>
+                        <input type="checkbox" id="settings-allow_ds_fetch"> <p>DS Fetch</p><br>
+                        <input type="checkbox" id="settings-allow_upt_robot"> <p>Allow Uptime Robot</p><br>
+                        <input type="checkbox" id="settings-allow_uploads"> <p>Allow UPLs</p><br>
+                        <input type="checkbox" id="settings-auth_users"> <p>Auth</p><br>
+                        <input type="checkbox" id="settings-auth_cid"> <p>CID Auth</p><br>
+                        <input type="checkbox" id="settings-dynamic_tfl"> <p>Dynamic TFL</p><br>
+                    </div>
+                    <div>
+                        <p>Lockdown</p>
+                        <input type="text" id="settings-lckdwn">
+                        <p>Shop Title</p>
+                        <input type="text" id="settings-shp_ttl">
+                        <p>Allow Web</p>
+                        <input type="text" id="settings-allow_web_part">
+                        <p>Admin Key</p>
+                        <input type="password" id="settings-admin_key">
+                        <p>No CID Max Devices</p>
+                        <input type="text" id="settings-nocid_max_dev">
+                        <p>UPL Folders</p>
+                        <input type="text" id="settings-uplloc">
+                        <p>AFI Folders</p>
+                        <input type="text" id="settings-afiloc">
+                        <p>Max Search Errors</p>
+                        <input type="text" id="settings-ss_max_err">
+                        <p>Page Length</p>
+                        <input type="text" id="settings-pglen">
+                        <p>.TFL CFG</p>
+                        <input type="text" id="settings-tfl_otp">
+                        <p>Title DB</p>
+                        <input type="text" id="settings-title_db">
+                        <p>TTLDB Expire</p>
+                        <input type="text" id="settings-ttldb_time">
+                        <p>Pre-Include</p>
+                        <input type="text" id="settings-pre_include">
+                        <p>Pre-Require</p>
+                        <input type="text" id="settings-pre_require">
+                        <p>Post-Include</p>
+                        <input type="text" id="settings-post_include">
+                        <p>Post-Require</p>
+                        <input type="text" id="settings-post_require">
+                    </div>
+                </div>
+                <div class="contents">
+                    <div class="container" id="settings-sources" a="source" b="active" c="group" d="recursive">
+                        <button onclick="document.querySelector('body > div.popup#'+this.parentNode.id+'-new').classList.remove('hided');">+ SRC</button>
+                    </div>
+                    <div class="container" id="settings-modes" a="ar_name" b="icon" c="frmt">
+                        <button onclick="document.querySelector('body > div.popup#'+this.parentNode.id+'-new').classList.remove('hided');">+ MODE</button>
+                    </div>
+                    <div class="container" id="settings-groups" a="ar_name" b="grp_games">
+                        <button onclick="document.querySelector('body > div.popup#'+this.parentNode.id+'-new').classList.remove('hided');">+ GRP</button>
+                    </div>
+                    <div class="container" id="settings-saves" a="ar_name" b="uri" c="fld" d="enabled">
+                        <button onclick="document.querySelector('body > div.popup#'+this.parentNode.id+'-new').classList.remove('hided');">+ SAVE</button>
+                    </div>
+                </div>
+            </div>
+            <button onclick="document.querySelector('body > div.popup#settings-confirm-key').classList.remove('hided');document.querySelector('body > div.settings').classList.add('hided');">Apply</button>
+            <button onclick="document.querySelector('body > div.settings').classList.add('hided');">Close</button>
+        </div></div>
+        <div class="popup filebrowser hided"><div class="center">
+            <h5>File Browser</h5>
+            <div class="filebrowser-files">
+                <div><p>Sample File</p><button>X</button></div>
+            </div>
+            <button onclick="loadFileBrowser();document.querySelector('body > div.filebrowser').classList.add('hided');">Refresh</button>
+            <button onclick="document.querySelector('body > div.filebrowser').classList.add('hided');">Close</button>
+        </div></div>
+        <div class="popup nsc hided" id="settings-sources-new" nc><div class="center">
+            <h5>Add Source</h5>
+            <p>* URI [http(s)/folder]</p>
+            <input type="text" require>
+            <p>Active [0/1/String]</p>
+            <input type="text">
+            <p>Group [Blank/String]</p>
+            <input type="text">
+            <input type="checkbox"> <p>Recursive</p><br>
+            <button onclick="setOption(this.parentNode.parentNode);this.parentNode.parentNode.classList.add('hided');">Confirm</button>
+            <button onclick="this.parentNode.parentNode.classList.add('hided');">Cancel</button>
+        </div></div>
+        <div class="popup nsc hided" id="settings-modes-new" ni><div class="center">
+            <h5>Add Mode</h5>
+            <p>* Name</p>
+            <input type="text" require>
+            <p>Icon [Base64/URL]</p>
+            <input type="text">
+            <p>* FRMTs [1*2*...]</p>
+            <input type="text" require>
+            <button onclick="setOption(this.parentNode.parentNode);this.parentNode.parentNode.classList.add('hided');">Confirm</button>
+            <button onclick="this.parentNode.parentNode.classList.add('hided');">Cancel</button>
+        </div></div>
+        <div class="popup nsc hided" id="settings-groups-new"><div class="center">
+            <h5>Add Group</h5>
+            <p>* Name</p>
+            <input type="text" require>
+            <p>* Games [JSON]</p>
+            <input type="text" require>
+            <button onclick="setOption(this.parentNode.parentNode);this.parentNode.parentNode.classList.add('hided');">Confirm</button>
+            <button onclick="this.parentNode.parentNode.classList.add('hided');">Cancel</button>
+        </div></div>
+        <div class="popup nsc hided" id="settings-saves-new" nc="3"><div class="center">
+            <h5>Add Save</h5>
+            <p>* Name</p>
+            <input type="text" require>
+            <p>* URI [ftp]</p>
+            <input type="text" require>
+            <p>* FLDRs [1*2*...]</p>
+            <input type="text" require>
+            <input type="checkbox"> <p>Enabled</p><br>
+            <button onclick="setOption(this.parentNode.parentNode);this.parentNode.parentNode.classList.add('hided');">Confirm</button>
+            <button onclick="this.parentNode.parentNode.classList.add('hided');">Cancel</button>
+        </div></div>
+        <div class="popup nsc hided" id="settings-confirm-key"><div class="center">
+            <h5>Authenticate</h5>
+            <p>Admin Key</p>
+            <input type="password">
+            <button onclick="setOption(this.parentNode.parentNode, document.querySelector('body > div.settings'), (o)=>{var pup = document.querySelector('body > div.popup#settings-confirm-result');if(o==200){o='Success!';pup.querySelector('button').innerHTML = 'Refresh';pup.querySelector('button').setAttribute('onclick', 'location.reload()');}else if (o==401){o='Wrong Key!'};pup.querySelector('p').innerHTML = 'Output: '+o;pup.classList.remove('hided');});this.parentNode.parentNode.classList.add('hided');">Confirm</button>
+            <button onclick="this.parentNode.parentNode.classList.add('hided');">Cancel</button>
+        </div></div>
+        <div class="popup hided" id="settings-confirm-result"><div class="center">
+            <h5>Change Settings</h5>
+            <p>Output: </p>
+            <button onclick="this.parentNode.parentNode.classList.add('hided');">Close</button>
+        </div></div>
+        <div class="popup nsc hided" todel="" id="filebrowser-confirm-key"><div class="center">
+            <h5>Authenticate</h5>
+            <p>Admin Key</p>
+            <input type="password">
+            <button onclick="this.parentNode.parentNode.classList.add('hided');var td = this.parentNode.parentNode.getAttribute('todel');this.parentNode.parentNode.setAttribute('todel', '');(async(td)=>{await fetch('?'+new URLSearchParams({'adminkey': this.parentNode.querySelector('input').value, 'filedel': td}), {method: 'POST', headers:{'fetch-delete': 'true'}}).then(r=>r.status+' '+r.statusText).then(r=>{})})(td);">Confirm</button>
+            <button onclick="this.parentNode.parentNode.classList.add('hided');this.parentNode.parentNode.setAttribute('todel', '');">Cancel</button>
+        </div></div>
+        <div class="popup hided" id="settings-confirm-result"><div class="center">
+            <h5>Delete File</h5>
+            <p>Output: </p>
+            <button onclick="this.parentNode.parentNode.classList.add('hided');">Close</button>
+        </div></div>
+        <div class="popup hided" id="popup-clipboard-alert"><div class="center">
+            <h5>Copied</h5>
+            <p>Copied game URL to clipboard!</p>
+            <button onclick="this.parentNode.parentNode.classList.add('hided');">Cancel</button>
+        </div></div>
+        <script>
+            async function loadSettings() {
+                const res = await fetch('', {headers: {'fetch-overridesettings': 'true', 'fetch-overridesettings-get': 'true'}}).then(r=>r.json());
+                var clearedDivs = false;
+                for (var k0 in res) {
+                    var v0 = res[k0];
+                    var ce = document.querySelector(`body > div.settings input[type=checkbox]#settings-${k0}`);
+                    var te = document.querySelector(`body > div.settings input:not(input[type=checkbox])#settings-${k0}`);
+                    var ne = document.querySelectorAll(`body > div.nsc#settings-${k0}-new > div.center > input`);
+                    var nc = document.querySelector(`body > div.nsc#settings-${k0}-new > div.center > button`);
+                    if (ce && ce.type == "checkbox") ce.checked = Boolean(v0);
+                    if (te && te.type != "checkbox") te.value = v0.toString();
+                    if (Array.isArray(v0)) {
+                        if (!clearedDivs) {document.querySelectorAll(`body > div.settings div.settingdivvalue`).forEach(e=>{e.remove()});clearedDivs = true;}
+                        for (var i = 0;i < v0.length;i++) {
+                            for (var i2 = 0;i2 < Object.keys(v0[i]).length;i2++) {
+                                var ie = ne[i2];
+                                var oe = v0[i][Object.keys(v0[i])[i2]];
+                                if (ie.type == "checkbox") ie.checked = oe
+                                else ie.value = oe.toString();
+                            }
+                            nc.click();
+                        }
+                    }
+                }
+            }
+            async function setOption(p, s, cb) {
+                //SUPPORTS MAX 25 OPTIONS!
+                if (!p) return false;
+                if (p.id.indexOf('-key') != -1 && p.id.indexOf('-key') === p.id.length - 4) {
+                    var key = p.querySelector('input:not(input[type=checkbox])').value ?? "";
+                    p.querySelector('input:not(input[type=checkbox])').value = "";
+                    if (key.length < 1 || !s) return false;
+                    var esi = s.querySelectorAll('input:not(div.settingdivvalue input)');
+                    var esd = s.querySelectorAll('div.settingdivvalue');
+                    var res = {"php_options_change_auth_key_sent": key};
+                    esi.forEach(e=>{
+                        var val = (e.type == "checkbox") ? e.checked : e.value;
+                        if (!isNaN(Number(val)) && e.id.replace('settings-', '') != "admin_key") val = Number(val);
+                        if (e.id.replace('settings-', '') == "admin_key" && val == "0") val = 0;
+                        res[e.id.replace('settings-', '')] = val;
+                    });
+                    esd.forEach(e=>{
+                        var sn = e.parentNode.id.replace('settings-', '');
+                        if (!Array.isArray(res[sn])) res[sn] = [];
+                        var opt = {};
+                        for (var i = 0;i < Number(e.getAttribute('ops'));i++) {
+                            var char = String.fromCharCode(97 + i);
+                            var cn = e.parentNode.getAttribute(char);
+                            if (e.classList.contains('removed')) continue;
+                            if (e.querySelector('input[type=checkbox]') && e.getAttribute(char) == null) opt[cn] = (isNaN(Number(e.querySelector('input[type=checkbox]').getAttribute('nco')))) ? e.querySelector('input[type=checkbox]').getAttribute('nco') : Number(e.querySelector('input[type=checkbox]').checked);
+                            if (e.querySelector('img') && e.getAttribute(char) == null) opt[cn] = e.querySelector('img').src;
+                            if (e.getAttribute(char) && e.getAttribute(char).length > 0) {
+                                if (isNaN(Number(e.getAttribute(char)))) opt[cn] = e.getAttribute(char)
+                                else opt[cn] = Number(e.getAttribute(char));
+                            }
+                        }
+                        res[sn].push(opt);
+                    });
+                    const resp = await fetch('', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'fetch-overridesettings': 'true'
+                        },
+                        body: JSON.stringify(res)
+                    }).then(r=>{
+                        if (r.ok && r.status == 200) {
+                            esi.forEach(e=>{
+                                if (e.type == "checkbox") e.checked = false
+                                else e.value = ""
+                            });
+                            esd.forEach(e=>{
+                                e.remove();
+                            })
+                            if (typeof cb === "function") cb(200);
+                        } else if (!r.ok && r.status == 401) {
+                            if (typeof cb === "function") cb(401);
+                        }
+                    });
+                    return true;
+                } else if (p.id.indexOf('-new') != -1 && p.id.indexOf('-new') === p.id.length - 4) {
+                    var ne = document.createElement('div');
+                    ne.addEventListener('click', (e)=>{if (e.target === ne) ne.classList.add('removed');})
+                    ne.classList.add("settingdivvalue");
+                    var es = p.querySelectorAll('input');
+                    if (p.getAttribute('nc') != null) {
+                        var nc = (p.getAttribute('nc').length > 0 && !isNaN(Number(p.getAttribute('nc')))) ? Number(p.getAttribute('nc')) : 1;
+                        var checked = (Number(es[nc].value) === 1 || Number(es[nc].checked) === 1) ? " checked" : "";
+                        for (var i = 0;i < es.length;i++) {
+                            if (i==nc)continue;
+                            if (es[i].getAttribute('require') != null && (es[i].type != "checkbox" && es[i].value.length == 0)) return false;
+                            if (es[i].type != "checkbox") ne.setAttribute(String.fromCharCode(97 + i), es[i].value)
+                            else ne.setAttribute(String.fromCharCode(97 + i), Number(es[i].checked).toString());
+                        }
+                        ne.innerHTML = `<input type="checkbox"${checked} nco="${es[nc].value}"> <p>${es[0].value}</p>`;
+                    } else if (p.getAttribute('ni') != null) {
+                        var ni = (p.getAttribute('ni').length > 0 && !isNaN(Number(p.getAttribute('ni')))) ? Number(p.getAttribute('ni')) : 1;
+                        for (var i = 0;i < es.length;i++) {
+                            if (i==ni)continue;
+                            if (es[i].getAttribute('require') != null && (es[i].type != "checkbox" && es[i].value.length == 0)) return false;
+                            if (es[i].type != "checkbox") ne.setAttribute(String.fromCharCode(97 + i), es[i].value)
+                            else ne.setAttribute(String.fromCharCode(97 + i), Number(es[i].checked).toString());
+                        }
+                        ne.innerHTML = `<img src="${es[ni].value}" alt=""> <p>${es[0].value}</p>`;
+                    } else {
+                        for (var i = 0;i < es.length;i++) {
+                            if (es[i].getAttribute('require') != null && (es[i].type != "checkbox" && es[i].value.length == 0)) return false;
+                            if (es[i].type != "checkbox") ne.setAttribute(String.fromCharCode(97 + i), es[i].value)
+                            else ne.setAttribute(String.fromCharCode(97 + i), Number(es[i].checked).toString());
+                        }
+                        ne.innerHTML = `<p>${es[0].value}</p>`;
+                    }
+                    ne.setAttribute('ops', es.length.toString());
+                    document.querySelector(`#${p.id.substr(0, p.id.length - 4)}`).appendChild(ne);
+                    for (var i = 0;i < es.length;i++) {
+                        if (es[i].type == "checkbox") es[i].checked = false
+                        else es[i].value = ""
+                    }
+                    return true;
+                }
+                return null;
+            }
+            function sec(f){
+                if(f) document.querySelectorAll('body > *').forEach((e)=>{if(e.tagName.toLowerCase() == 'div')e.classList.add('hided');});
+                if(f) f.classList.remove('hided');
+            }
+            async function src(q, t, et) {
+                if (typeof q != "string") return false;
+                var url = location.protocol+'//'+location.host+location.pathname;
+                if (q.length < 1) {
+                    var res = await fetch('',{headers:{'fetch-groups':'true'}}).then(r=>r.json());
+                    if (et) {
+                        et.innerHTML = "";
+                        if (t) t.innerHTML = "";
+                        if (Object.keys(res).length < 1) {et.innerHTML = `<div class="center errorPopup"><h1>404</h1><p>This shop has no groups!<br>Edit 'options.json' file.</p></div>`}
+                        for(var group in res) {
+                            var grp = document.createElement('div');
+                            var newinnerHTML = "";
+                            newinnerHTML += `<h1>${group}</h1><div>`;
+                            for(var g of res[group]) {
+                                var copyURL =  ((g.url.indexOf('http') != 0) ? url.replaceAll(' ', '%20').replaceAll("'", '%27') : "")+g.url.replaceAll(' ', '%20').replaceAll("'", '%27');
+                                newinnerHTML += `<div class="game" oncontextmenu="navigator.clipboard.writeText('${copyURL}');document.querySelector('#popup-clipboard-alert').classList.remove('hided');return false" onclick="window.open('${g.url}');"><div style="background-image: url('${g.bkg}');"></div><div><img src="${g.src}" onerror="this.src='${g.err_src}';" alt=""></div></div>`;
+                            }
+                            grp.innerHTML += newinnerHTML + `</div>`;
+                            et.appendChild(grp);
+                        }
+                        sec(et);
+                    }
+                    return res;
+                }
+                if (q.indexOf('*') === 0 && ((q.indexOf('*:') === 0 && !isNaN(Number(q.replace('*:', '')))) || (q.indexOf('*:') != 0))) {
+                    var page = (q.indexOf('*:') === 0 && !isNaN(Number(q.replace('*:', '')))) ? Number(q.replace('*:', '')) : 1;
+                    var p = new URLSearchParams();
+                    p.set('page', page.toString());
+                    p = p.toString();
+                    var res = await fetch('?'+p,{headers:{'fetch-list':'true'}}).then(r=>r.json());
+                    var prev = page - 1;
+                    var next = page + 1;
+                    var p = new URLSearchParams();
+                    p.set('page', next.toString());
+                    p = p.toString();
+                    var nv = ((await fetch('?'+p,{headers:{'fetch-list':'true'}}).then(r=>r.json())).length === 0) ? false : true;
+                    if (t) {
+                        t.innerHTML = "";
+                        if (et) et.innerHTML = "";
+                        if (res.length == 0) {t.innerHTML = `<div class="center errorPopup"><h1>404</h1><p>No results!<br>Search again with different keywords.</p></div>`}
+                        else {var p = ``;var n = ``;if (prev >= 1){p=`<button onclick="document.querySelector('input#q').value='*:${prev.toString()}';src('*:${prev.toString()}', document.querySelector('body > .srs'), document.querySelector('body > .games'));">&lt;-</button>`};if(nv){n=`<button onclick="document.querySelector('input#q').value='*:${next.toString()}';src('*:${next.toString()}', document.querySelector('body > .srs'), document.querySelector('body > .games'));">-&gt;</button>`;};t.innerHTML = `<div class="pageSelector">${p}<p>Page ${page}</p>${n}</div>`}
+                        for(var g of res) {
+                            var copyURL =  ((g.url.indexOf('http') != 0) ? url.replaceAll(' ', '%20').replaceAll("'", '%27') : "")+g.url.replaceAll(' ', '%20').replaceAll("'", '%27');
+                            t.innerHTML += `<div class="game" oncontextmenu="navigator.clipboard.writeText('${copyURL}');document.querySelector('#popup-clipboard-alert').classList.remove('hided');return false" onclick="window.open('${g.url}');"><div style="background-image: url('${g.bkg}');"></div><div><img src="${g.src}" onerror="this.src='${g.err_src}';" alt=""><h4>[${g.pltfrm}] ${g.name}</h4><div class="ginfo">${g.size} - ${g.version}</div></div>`;
+                        }                        
+                        sec(t);
+                    }
+                    return res;
+                }
+                var p = new URLSearchParams();
+                p.set('q', q);
+                p = p.toString();
+                var res = await fetch('?'+p,{headers:{'fetch-search':'true'}}).then(r=>r.json());
+                if (t) {
+                    t.innerHTML = "";
+                    if (et) et.innerHTML = "";
+                    if (res.length == 0) {t.innerHTML = `<div class="center errorPopup"><h1>404</h1><p>No results!<br>Search again with different keywords.</p></div>`}
+                    for(var g of res) {
+                        var copyURL =  ((g.url.indexOf('http') != 0) ? url.replaceAll(' ', '%20').replaceAll("'", '%27') : "")+g.url.replaceAll(' ', '%20').replaceAll("'", '%27');
+                        t.innerHTML += `<div class="game" oncontextmenu="navigator.clipboard.writeText('${copyURL}');document.querySelector('#popup-clipboard-alert').classList.remove('hided');return false" onclick="window.open('${g.url}');"><div style="background-image: url('${g.bkg}');"></div><div><img src="${g.src}" onerror="this.src='${g.err_src}';" alt=""><h4>[${g.pltfrm}] ${g.name}</h4><div class="ginfo">${g.size} - ${g.version}</div></div>`;
+                    }
+                    sec(t);
+                }
+                return res;
+            }
+            function EnableUpload() {
+                let e = document.querySelector(".upload-form");
+                t = e.querySelector("#files");
+                t.onchange = ()=>{
+                    e.querySelector("label").innerHTML="";
+                    for (let l = 0;l < t.files.length; l++) e.querySelector("label").innerHTML += '<span><i class="fa-solid fa-file"></i>' + t.files[l].name+"</span>";
+                };
+                e.onsubmit = l=>{
+                    if (l.preventDefault(), t.files.length) {
+                        let o = new FormData(e), a = new XMLHttpRequest;
+                        a.open("POST", e.action);
+                        a.upload.addEventListener("progress", t=>{
+                            e.querySelectorAll("button")[1].innerHTML = "Uploading... (" + (t.loaded / t.total * 100).toFixed(2) + "%)", e.querySelector(".progress").style.background="linear-gradient(to right, #25b350, #25b350 " + Math.round(t.loaded / t.total * 100) + "%, #e6e8ec " + Math.round(t.loaded / t.total * 100) + "%)";
+                            e.querySelectorAll("button")[1].disabled = !0;
+                            e.querySelectorAll("button")[0].disabled = !0;
+                            e.querySelectorAll("select")[0].disabled = !0;
+                        });
+                        a.onreadystatechange = ()=>{
+                            4==a.readyState&&200==a.status&&(e.querySelector(".result").innerHTML="<p style='all:unset'>"+a.responseText+"</p>",e.querySelectorAll("button")[1].disabled=0,e.querySelectorAll("select")[0].disabled=0,e.querySelectorAll("button")[1].innerHTML='Upload',e.querySelectorAll("button")[0].disabled=0,e.querySelector(".progress").style='',e.querySelector("input#files").value=null,e.querySelector("input#files").value='',e.querySelector("label").innerHTML='<i class="fa-solid fa-folder-open fa-2x"></i><p>Select files ...</p>')
+                        };
+                        a.send(o)
+                    } else {
+                        e.querySelector(".result").innerHTML = "Please select a file!";
+                    }
+                }
+            }
+            document.querySelector('div.popup.tinfoil > div.center > p#tinfoil-cfg-switch').innerHTML = document.querySelector('div.popup.tinfoil > div.center > p#tinfoil-cfg-switch').innerHTML.replace('&lt; SHOP_TITLE_HERE &gt;', document.title);
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                vars[key] = value;
+            });
+            if (typeof vars["q"] === "string") {
+                document.querySelector('input#q').value = vars["q"];
+                src(vars["q"], document.querySelector('body > .srs'), document.querySelector('body > .games'));
+            }
+            EnableUpload();
+        </script>
+    </body>
+</html>
