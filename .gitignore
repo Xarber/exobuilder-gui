@@ -15,8 +15,8 @@ node_modules_win
 data/auth/*
 data/nxtitle/*
 data/out
-games/*
-uploads/*
+games
+uploads
 downloads
 content
 usr
