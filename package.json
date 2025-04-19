@@ -22,6 +22,10 @@
     "test-prod": "electron .",
     "start": "electron-forge start",
     "package": "electron-forge package",
+    "package-global": "npm run package-macos && npm run package-windows && npm run package-linux",
+    "package-macos": "electron-forge package --platform darwin --arch x64,arm64",
+    "package-windows": "electron-forge package --platform win32 --arch x64,ia32",
+    "package-linux": "electron-forge package --platform linux --arch x64,arm64",
     "make": "electron-forge make",
     "publish": "env-cmd electron-forge publish"
   },

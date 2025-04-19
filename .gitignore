@@ -1,5 +1,6 @@
 # Files
 .env
+.DS_Store
 gittoken.txt
 #todo
 data/import/options.json
