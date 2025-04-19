@@ -10,7 +10,8 @@ window.prompt = (text, options = {})=>{
     options.cancelText ??= "Cancel";
     options.inputPlaceholder ??= "Write text here";
     options.awaitClose ??= false;
-    var {type, descText, confirmText, cancelText, inputPlaceholder, textOverride, isTitleDesc, awaitClose} = options;
+    options.pickAnswers ??= [];
+    var {type, descText, confirmText, cancelText, inputPlaceholder, textOverride, isTitleDesc, awaitClose, pickAnswers} = options;
     if (isTitleDesc) {
         descText = text;
         if (textOverride === text) textOverride = "Notification";
@@ -18,7 +19,7 @@ window.prompt = (text, options = {})=>{
     text = textOverride;
     return new Promise(async function(resolve, reject) {
         try {
-            text ??= type === "confirm" ? "Confirm the action" : "Input some text...";
+            text ??= type === "pick" ? "Select an option" : (type === "confirm" ? "Confirm the action" : "Input some text...");
             var backgroundDiv = document.createElement('div');
             backgroundDiv.style = "background-color: rgba(0, 0, 0, 0.5);position: fixed;top: 0;left: 0;z-index: 999;width: 100%;height: 100%;";
             var promptDiv = document.createElement('div');
@@ -29,15 +30,26 @@ window.prompt = (text, options = {})=>{
             var promptDesc = document.createElement('p');
             promptDesc.style = "margin: 10px 5px;";
             promptDesc.innerText = descText;
-            var promptInput = document.createElement('input');
-            promptInput.style = "color: white;border: 1px solid gray;border-radius: 5px;padding: 5px 10px;";
-            promptInput.placeholder = inputPlaceholder ?? "Write text here";
+            if (type === "pick") {
+                var promptInput = document.createElement('select');
+                for (var ans of pickAnswers) {
+                    var option = document.createElement('option');
+                    option.value = ans.value;
+                    option.innerText = ans.text;
+                    promptInput.appendChild(option);
+                }
+                promptInput.style = "color: white;border: 1px solid gray;border-radius: 5px;padding: 5px 10px;";
+            } else {
+                var promptInput = document.createElement('input');
+                promptInput.style = "color: white;border: 1px solid gray;border-radius: 5px;padding: 5px 10px;";
+                promptInput.placeholder = inputPlaceholder ?? "Write text here";
+            }
             var promptActionDiv = document.createElement('div');
             promptActionDiv.style = "display: block;margin-left: auto;";
             var promptConfirm = document.createElement('button');
             promptConfirm.style = "background-color: rgba(0, 70, 170);border-radius: 5px;border: 1px solid gray;color: white;margin: 5px;";
             promptConfirm.innerText = confirmText;
-            promptConfirm.addEventListener('click', ()=>{backgroundDiv.remove();resolve(type === "input" ? promptInput.value : true)});
+            promptConfirm.addEventListener('click', ()=>{backgroundDiv.remove();resolve(type != "confirm" ? promptInput.value : true)});
             var promptCancel = document.createElement('button');
             promptCancel.style = "background-color: rgba(20, 20, 20);border-radius: 5px;border: 1px solid gray;color: white;margin: 5px;";
             promptCancel.innerText = cancelText;
@@ -45,7 +57,7 @@ window.prompt = (text, options = {})=>{
         
             promptDiv.appendChild(promptTitle);
             if (!!descText && descText.length > 0) promptDiv.appendChild(promptDesc);
-            if (type == "input") promptDiv.appendChild(promptInput);
+            if (type != "confirm") promptDiv.appendChild(promptInput);
             if (cancelText !== false) promptActionDiv.appendChild(promptCancel);
             if (confirmText !== false) promptActionDiv.appendChild(promptConfirm);
             if (cancelText !== false || confirmText !== false) promptDiv.appendChild(promptActionDiv)

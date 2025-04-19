@@ -211,14 +211,18 @@ if (app) {
     ipcMain.on('updateNow', (event, message) => {
         if (isDevApp) return false;
         return false;
-        //Updating is yet to be implemented
+        //Updating is still not tested
         var oldVersions = [];
         fs.readdirSync("../").forEach(e=>{if (e.indexOf('app-') === 0 && e != "app-"+app.getVersion()) oldVersions.push(e)});
         dialog.showMessageBoxSync({
             message: oldVersions.join(", ")
         });
-        oldVersions.forEach(e=>fs.rmSync("../"+e));
+        oldVersions.forEach(e=>fs.rmSync("../"+e, {force: true, recursive: true}));
         fs.copyFileSync("../app-"+app.getVersion(), "../app-"+message);
+        // https://github.com/Xarber/exobuilder-gui/releases/download/${message}/exobuilder-gui-${platform}-${arch}-${message}-.zip
+        // https://res.xcenter.it/ExoPack/ExoBuilder/dist/exobuilder-gui-${platform}-${arch}/resources/app.asar
+        // https://res.xcenter.it/ExoPack/ExoBuilder/dist/exobuilder-gui-${platform}-${arch}/resources/libs/*
+        // ${message} = 1.X.X; ${platform} = linux, win32, macos; ${arch} = x64 / x86 / ARM64 ?
     });
     ipcMain.handle('linktgaccount', async (e, message)=>{
         message.prompt = (text) =>{

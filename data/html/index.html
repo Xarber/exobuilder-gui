@@ -5,10 +5,10 @@
         <meta content="IE=edge" http-equiv="X-UA-Compatible">
         <meta content="width=device-width,initial-scale=1" name="viewport">
         <title><?nodejs echo(arguments[3].settings.shp_ttl) ?></title>
-        <link href="<?nodejs echo(arguments[3].protocol + arguments[3].host) ?>/data/logo.png" rel="shortcut icon" type="image/x-icon">
+        <link href="<?nodejs echo(arguments[3].protocol + '' + arguments[3].host) ?>/data/logo.png" rel="shortcut icon" type="image/x-icon">
         <meta property="og:title" content="<?nodejs echo(arguments[3].settings.shp_ttl) ?>" />
         <meta property="og:type" content="Rom Freeshop" />
-        <meta property="og:url" content="<?nodejs echo(arguments[3].protocol + arguments[3].host) ?>" />
+        <meta property="og:url" content="<?nodejs echo(arguments[3].protocol + '' + arguments[3].host) ?>" />
         <meta property="og:description" content="ROM Freeshop" />
         <meta name="theme-color" content="#8400ff">
         <meta content="ROM Freeshop" name="description">
@@ -198,7 +198,7 @@
             </form>
         </div>
         <nav>
-            <img style="cursor: pointer" onclick="document.querySelector('div.games').innerHTML = '';document.querySelector('div.srs').innerHTML = '';sec(document.querySelector('body > div.home'))" src="<?nodejs echo(arguments[3].protocol + arguments[3].host) ?>/data/logo.png" alt="">
+            <img style="cursor: pointer" onclick="document.querySelector('div.games').innerHTML = '';document.querySelector('div.srs').innerHTML = '';sec(document.querySelector('body > div.home'))" src="<?nodejs echo(arguments[3].protocol + '' + arguments[3].host) ?>/data/logo.png" alt="">
             <form action="#" onsubmit="src(this.querySelector('input').value, document.querySelector('body > .srs'), document.querySelector('body > .games'));return false">
                 <input name="q" id="q" type="text" placeholder="Search">
             </form>
@@ -217,8 +217,8 @@
             <h5>File Browser Config</h5>
             <p id="tinfoil-cfg-switch">
                 Protocol: <?nodejs echo(arguments[3].protocol) ?>
-                <br>Host: <?nodejs echo(arguments[3].host) ?>
-                <?nodejs var port = false;if (arguments[3].protocol === "https:" && arguments[4].port.https != 443) {port = arguments[4].port.https} else if (arguments[3].protocol === "http:" && arguments[4].port.http != 80) {port = arguments[4].port.http};if (port) echo('<br>Port: '+port) ?>
+                <br>Host: <?nodejs echo(arguments[2].host) ?>
+                <?nodejs var port = false;if (arguments[3].protocol === "https:" && arguments[3].port.https != 443) {port = arguments[3].port.https} else if (arguments[3].protocol === "http:" && arguments[3].port.http != 80) {port = arguments[3].port.http};if (port) echo('<br>Port: '+port) ?>
                 <?nodejs if (!!arguments[3].path && arguments[3].path.length > 1) echo('<br>Path: '+arguments[3].path) ?>
                 <?nodejs echo(!!arguments[3].auth ? '<br>User: '+arguments[3].auth.usr : '') ?>
                 <?nodejs echo(!!arguments[3].auth ? '<br>Pass: '+arguments[3].auth.pwd : '') ?>

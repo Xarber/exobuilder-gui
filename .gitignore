@@ -1,0 +1,24 @@
+# Files
+.env
+gittoken.txt
+todo
+data/import/options.json
+data/import/methods.txt
+
+# Folders
+.vscode
+libs/ExoBuilder.cpp
+node_modules
+node_modules_lin
+node_modules_win
+data/auth/*
+data/nxtitle/*
+data/out
+games/*
+uploads/*
+downloads
+content
+usr
+out
+dist
+buildcomponents

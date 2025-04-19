@@ -12,6 +12,7 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/publisher-github": "^7.4.0",
     "@electron/fuses": "^1.8.0",
+    "electron-prebuilt-compile": "^8.2.0",
     "electron": "^31.4.0"
   },
   "scripts": {
@@ -66,12 +67,6 @@
           "config": {
             "name": "exobuilder-gui"
           }
-        },
-        {
-          "name": "@electron-forge/maker-deb"
-        },
-        {
-          "name": "@electron-forge/maker-rpm"
         },
         {
           "name": "@electron-forge/maker-dmg",

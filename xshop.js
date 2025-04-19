@@ -991,7 +991,7 @@ const startXShop = (async()=>{
             var reqHandleStartTime = performance.now();
             var reqHandleSections = {};
         }
-        var server = global.server;
+        var server = {...global.server, protocol: req.protocol};
         if (!!server.rules.hosts && !!server.rules.hosts.default) server = {...server, ...server.rules.hosts.default};
         if (!!server.rules.hosts) {
             if (server.rules.hosts[req.headers.host]) {server = {...server, ...server.rules.hosts[req.headers.host]};}
@@ -1050,7 +1050,7 @@ const startXShop = (async()=>{
                     for (var file of files.file) {
                         if (!!server.uploads.handler) {
                             var fcontent = !!server.availableFunctions.php ? runPHP('.'+server.uploads.handler) : fs.readFileSync('.'+server.uploads.handler, 'utf8');
-                            fcontent = execNodeCode(fcontent, server.uploads.handler, reqUrlData, publicServer, file);
+                            fcontent = execNodeCode(fcontent, server.uploads.handler, reqUrlData, {...publicServer, protocol: req.protocol}, file);
                             if (!!args.perftimer) reqHandleSections["run upload handler scripts"] = performance.now() - reqHandleStartTime;
                             res.write(fcontent);
                             count++;
@@ -1058,7 +1058,7 @@ const startXShop = (async()=>{
                         }
                         if (!!server.uploads.filter) {
                             var fcontent = !!server.availableFunctions.php ? runPHP('.'+server.uploads.filter) : fs.readFileSync('.'+server.uploads.filter, 'utf8');
-                            fcontent = execNodeCode(fcontent, server.uploads.filter, reqUrlData, publicServer, file);
+                            fcontent = execNodeCode(fcontent, server.uploads.filter, reqUrlData, {...publicServer, protocol: req.protocol}, file);
                             if (!!args.perftimer) reqHandleSections["run upload filter scripts"] = performance.now() - reqHandleStartTime;
                             res.write(fcontent);
                             if (fcontent.indexOf('ERROR:') === 0) {
@@ -1072,7 +1072,7 @@ const startXShop = (async()=>{
                         fs.rmSync(file.filepath);
                         if (!!server.uploads.postScript && server.uploads.postScript.length > 0 && fs.existsSync('.'+server.uploads.postScript)) {
                             var fcontent = !!server.availableFunctions.php ? runPHP('.'+server.uploads.postScript) : fs.readFileSync('.'+server.uploads.postScript, 'utf8');
-                            fcontent = execNodeCode(fcontent, server.uploads.postScript, reqUrlData, publicServer, "./"+server.uploads.destination+fileIdentifier+file.originalFilename, fileIdentifier);
+                            fcontent = execNodeCode(fcontent, server.uploads.postScript, reqUrlData, {...publicServer, protocol: req.protocol}, "./"+server.uploads.destination+fileIdentifier+file.originalFilename, fileIdentifier);
                             if (!!args.perftimer) reqHandleSections["run page scripts"] = performance.now() - reqHandleStartTime;
                             res.write(fcontent);
                         } else if (fields.redirect) {
@@ -1221,6 +1221,8 @@ const startXShop = (async()=>{
                     }
                 }
             }
+            // X-SHOP CHECK IF TINFOIL
+            client.isTinfoil = (client.useragent == "" && !!req.headers['theme'] && !!req.headers['hauth'] && !!req.headers['uauth'] && !!req.headers['uid'] && !!req.headers['language'] && !!req.headers['version']);
             client.accessdata.ovr_key.iuser = parsedURL.query['user'] ?? (client.auth ? client.auth.usr : null);
             client.accessdata.ovr_key.nuser = parsedURL.query['nusr'] ?? (parsedURL.query['user'] ?? (client.auth ? client.auth.user : null)) ?? null;
             client.accessdata.ovr_key.ipass = parsedURL.query['psswd'] ?? (client.auth ? client.auth.pwd : null);
@@ -1275,6 +1277,7 @@ const startXShop = (async()=>{
                     break;
                 }
             }
+            if (client.isTinfoil && req.url === "/") req.urldata.path = "/games/";
             if (!!args.perftimer) reqHandleSections["find file"] = performance.now() - reqHandleStartTime;
     
             if (fs.existsSync('.'+req.urldata.path) && fs.lstatSync('.'+req.urldata.path).isDirectory()) req.urldata.path += (req.urldata.path.slice(-1) != "/") ? "/index.html" : "index.html";
@@ -1318,7 +1321,7 @@ const startXShop = (async()=>{
                 }).on('error', function(e) {
                     res.end(e);
                 }).pipe(res);
-            } else if (fs.existsSync('.'+req.urldata.path)) {
+            } else if (fs.existsSync('.'+req.urldata.path) && (!client.isTinfoil || (client.isTinfoil && req.url != "/"))) {
                 var isProtected = false;
                 for (var protectedfolder of server.protected) {
                     if (!!req.urldata.allowrestricted) break;
@@ -1459,16 +1462,17 @@ const startXShop = (async()=>{
                         req.pipe(bb);*/
                     } else {
                         var ftype = ('.'+req.urldata.path).slice(('.'+req.urldata.path).lastIndexOf('.') + 1, ('.'+req.urldata.path).length);
+                        var serveFile = (ftype === "html" || (ftype === "php" && !!server.availableFunctions.php) || ftype === "njs");
                         var ctype = server.filetypes[ftype] ?? server.filetypes.default;
-                        var fcontent = !!server.availableFunctions.php ? runPHP('.'+req.urldata.path) : fs.readFileSync('.'+req.urldata.path, 'utf8');
-                        fcontent = ftype === "njsc" ? execNodeCode(fcontent, req.urldata.path, req.urldata, publicServer, res) : execNodeCode(fcontent, req.urldata.path, req.urldata, publicServer);
+                        var fcontent = !!server.availableFunctions.php ? runPHP('.'+req.urldata.path) : (serveFile ? fs.readFileSync('.'+req.urldata.path, 'utf8') : "");
+                        fcontent = ftype === "njsc" ? execNodeCode(fcontent, req.urldata.path, req.urldata, {...publicServer, protocol: req.protocol}, res) : execNodeCode(fcontent, req.urldata.path, req.urldata, {...publicServer, protocol: req.protocol});
                         if (!!args.perftimer) reqHandleSections["run page scripts"] = performance.now() - reqHandleStartTime;
                         if (ftype != "njsc") {
                             const headers = {'Content-type':ctype};
                             var fn = req.urldata.path.slice(req.urldata.path.lastIndexOf('/') + 1, req.urldata.path.lastIndexOf('.'));
                             if ((ctype === server.filetypes.default && matchesRule(fn, "*.attachment")) || matchesRule(fn, "*.attachment")) headers['Content-Disposition'] = `attachment; filename="${fn.slice(0, fn.lastIndexOf('.attachment'))}.${('.'+req.urldata.originalPath).slice(('.'+req.urldata.originalPath).lastIndexOf('.') + 1, ('.'+req.urldata.originalPath).length)}"`;
                             res.writeHead(200, headers);
-                            if ((ftype === "html" || (ftype === "php" && !!server.availableFunctions.php) || ftype === "njs") && !headers['Content-Disposition']) {
+                            if (serveFile) {
                                 if (!!args.livereload && !req.urldata.followsRule && ftype != "njs") {
                                     var deflivereload = (!!args.nilivereload) ? "var reloads = "+reloads+";setInterval(()=>{fetch('/LiveReload-CheckStatus-208340S908CXZ0CNDUSJCIN938WNSJKFEECNSDXC9').then(r=>r.text()).then(r=>{if (isNaN(Number(r))) {return;} if (Number(r) > reloads || (reloads > 0 && Number(r) == 0)) {console.log('Live Reload - Change detected!', `New ${r}, Old ${reloads}`);if (window.confirm('Live Reload\\nThe original page was updated, want to refresh now?')) {location.reload();} else {reloads = Number(r)}}})}, 500)" : "var reloads = "+reloads+";setInterval(()=>{fetch('/LiveReload-CheckStatus-208340S908CXZ0CNDUSJCIN938WNSJKFEECNSDXC9').then(r=>r.text()).then(r=>{if (isNaN(Number(r))) {return;}if (Number(r) > reloads || (reloads > 0 && Number(r) == 0)) {console.log('Live Reload - Change detected!', `New ${r}, Old ${reloads}`);location.reload();}})}, 500)";
                                     var livereloadcontent = (fs.existsSync('./livereload.js')) ? fs.readFileSync('./livereload.js') : deflivereload;
@@ -1477,8 +1481,7 @@ const startXShop = (async()=>{
                                     res.end(fcontent);
                                 }
                             } else {
-                                if (!!headers['Content-Disposition']) {res.end(fcontent)}
-                                else {res.end(fs.readFileSync('.'+req.urldata.path))}
+                                fs.createReadStream('.'+req.urldata.path).pipe(res);
                             }
                         } else {
                             //Live support not enabled for this file type!
@@ -1516,7 +1519,7 @@ const startXShop = (async()=>{
                                 files.push({name: filename, type: (filestat.isFile() ? "file" : "directory"), mtime: `${rawDate[0]}, ${rawDate[2]} ${rawDate[1]} ${rawDate[3]} ${rawDate[4]} ${rawDate[5]}`, size: filestat.size})
                             }
                             if (!!args.perftimer) reqHandleSections["JSON autoindex"] = performance.now() - reqHandleStartTime;
-                            res.writeHead(404, {'Content-type': server.filetypes["json"]});
+                            res.writeHead(!!server.autoindex.error ? 404 : 200, {'Content-type': server.filetypes["json"]});
                             res.end(JSON.stringify(files, null, 4));
                         } else {
                             for (var filename of filenames) {
