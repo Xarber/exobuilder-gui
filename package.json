@@ -4,19 +4,19 @@
   "description": "A simple graphical interface for exobuilder, made with electron js.",
   "main": "index.js",
   "devDependencies": {
-    "@electron-forge/cli": "^7.4.0",
-    "@electron-forge/maker-dmg": "^7.4.0",
-    "@electron-forge/maker-squirrel": "^7.4.0",
-    "@electron-forge/maker-zip": "^7.4.0",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
-    "@electron-forge/plugin-fuses": "^7.4.0",
-    "@electron-forge/publisher-github": "^7.4.0",
+    "@electron-forge/cli": "^7.8.0",
+    "@electron-forge/maker-dmg": "^7.8.0",
+    "@electron-forge/maker-squirrel": "^7.8.0",
+    "@electron-forge/maker-zip": "^7.8.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.0",
+    "@electron-forge/plugin-fuses": "^7.8.0",
+    "@electron-forge/publisher-github": "^7.8.0",
     "@electron/fuses": "^1.8.0",
-    "electron-prebuilt-compile": "^8.2.0",
-    "electron": "^31.4.0"
+    "electron": "^35.2.0"
   },
   "scripts": {
     "test-linux": "APP_DEV=true electron .",
+    "test-macos": "APP_DEV=true electron .",
     "test-windows": "set APP_DEV=true && electron .",
     "test-prod": "electron .",
     "start": "electron-forge start",
@@ -96,17 +96,17 @@
   "dependencies": {
     "deasync": "^0.1.30",
     "electron-squirrel-startup": "^1.0.1",
-    "electron-updater": "^6.2.1",
+    "electron-updater": "^6.6.2",
     "env-cmd": "^10.1.0",
-    "formidable": "^3.5.1",
+    "formidable": "^3.5.3",
     "hi-base32": "^0.5.1",
     "ip": "^2.0.1",
-    "lookpath": "^1.2.2",
-    "otpauth": "^9.3.2",
+    "lookpath": "^1.2.3",
+    "otpauth": "^9.4.0",
     "public-ip": "^7.0.1",
     "qrcode": "^1.5.4",
     "request": "^2.88.2",
-    "telegram": "^2.24.11",
-    "webtorrent": "^2.5.0"
+    "telegram": "^2.26.22",
+    "webtorrent": "^2.6.3"
   }
 }

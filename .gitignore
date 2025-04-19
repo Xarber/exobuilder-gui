@@ -6,7 +6,7 @@ data/import/options.json
 #data/import/methods.txt
 
 # Folders
-.vscode
+#.vscode
 #libs/ExoBuilder.cpp
 node_modules
 node_modules_lin

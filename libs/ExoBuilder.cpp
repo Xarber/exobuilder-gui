@@ -19,6 +19,10 @@ string server = "xcenter.it";
     string sysnul = ">nul";
     string xidelroot = "$json";
     string setpathcmd = "";
+#elif defined(__APPLE__) && defined(__MACH__)
+    std::string sysnul = ">/dev/null";
+    std::string xidelroot = ".";
+    std::string setpathcmd = "export PATH=\"buildcomponents/bin/usr/bin:$PATH\" && ";
 #else
     string sysnul = ">/dev/null 2>&1";
     string xidelroot = ".";
@@ -59,6 +63,8 @@ int testver = 0;
 string exec(string cmd) {
     #ifdef _WIN32
         FILE *fp = _popen(cmd.c_str(), "r");
+    #elif defined(__APPLE__) && defined(__MACH__)
+        FILE *fp = popen(cmd.c_str(), "r");
     #else 
         FILE *fp = popen((cmd+" 2>&1").c_str(), "r");
     #endif
@@ -155,6 +161,8 @@ string listFiles(string path, bool recursive = false) {
         if (recursive && path.substr(0, 2) != "./" && path.substr(0, 1) != "/" && path.substr(1,3) != ":/") {
             output = exec("powershell.exe \"Get-ChildItem -Recurse '"+path+"' | Resolve-Path -Relative\"");
         } else output = exec("dir /b \""+fixpath(path)+"\"");
+    #elif defined(__APPLE__) && defined(__MACH__)
+        output = exec((recursive?(setpathcmd+"find \""+path+"\" -print | sed 's|^\\./||'"):("ls -a1 \""+path+"\"")));
     #else
         output = exec((recursive?(setpathcmd+"tree -i -f --noreport \""):"ls -a1 \"")+path+"\"");
     #endif
@@ -243,6 +251,13 @@ bool download(string uri, string output, string authtoken = "", bool prodmode = 
         printf("\n");
     }
     return (system(command.c_str()) == 0 && fs::exists(output));
+}
+bool xidelTestRun() {
+    #if defined(__APPLE__) && defined(__MACH__) 
+        return contains(exec(fixpath("buildcomponents/libraries/xidel")+" -r '.test' <<< '{\"test\":\"true\"}'"), "true");
+    #else
+        return contains(exec(fixpath("buildcomponents/libraries/xidel")+" -s --data={\"test\":\"true\"} -e \""+xidelroot+"/test\""), "true");
+    #endif
 }
 string updateStatFile(string status, initializer_list<string> details) {
     string statfileout = "";
@@ -415,15 +430,24 @@ string genAssetFile(string componentlist, string customversion = "") {
                 string gitapi = "https://api.github.com/repos/"+repo+"/releases";
                 download(gitapi, "buildcomponents/tmp/repo_releases.json", gittoken);
                 string curlout = readFile("buildcomponents/tmp/repo_releases.json");
-                bool xideltest = contains(exec(fixpath("buildcomponents/libraries/xidel")+" -s --data={\"test\":\"true\"} -e \""+xidelroot+"/test\""), "true");
+                bool xideltest = xidelTestRun();
                 string repoassets = "";
                 if (xideltest) {
-                    if (multibuild) {
-                        if (outtype == "extra") buildverex += atoi((exec(fixpath("buildcomponents/libraries/xidel")+" -s buildcomponents/tmp/repo_releases.json --xquery \"count("+xidelroot+"/url)\"")).c_str());
-                        if (repo == "THZoria/NX_Firmware") buildverfw += atoi((exec(fixpath("buildcomponents/libraries/xidel")+" -s buildcomponents/tmp/repo_releases.json --xquery \"count("+xidelroot+"/url)\"")).c_str());
-                    } else buildver += atoi((exec(fixpath("buildcomponents/libraries/xidel")+" -s buildcomponents/tmp/repo_releases.json --xquery \"count("+xidelroot+"/url)\"")).c_str());
-                    repoassets = exec(fixpath("buildcomponents/libraries/xidel")+" -s buildcomponents/tmp/repo_releases.json -e \""+xidelroot+"/assets[1]/browser_download_url\"");
-                    writeFile(fixpath("buildcomponents/build.ver"), to_string(buildver));
+                    #if defined(__APPLE__) && defined(__MACH__)
+                        if (multibuild) {
+                            if (outtype == "extra") buildverex += atoi((exec(fixpath("buildcomponents/libraries/xidel")+" '[.[].url] | length' buildcomponents/tmp/repo_releases.json 2>/dev/null")).c_str());
+                            if (repo == "THZoria/NX_Firmware") buildverfw += atoi((exec(fixpath("buildcomponents/libraries/xidel")+" '[.[].url] | length' buildcomponents/tmp/repo_releases.json 2>/dev/null")).c_str());
+                        } else buildver += atoi((exec(fixpath("buildcomponents/libraries/xidel")+" '[.[].url] | length' buildcomponents/tmp/repo_releases.json 2>/dev/null")).c_str());
+                        repoassets = exec(fixpath("buildcomponents/libraries/xidel")+" -r '.[0].assets[].browser_download_url' buildcomponents/tmp/repo_releases.json 2>/dev/null");
+                        writeFile(fixpath("buildcomponents/build.ver"), to_string(buildver));
+                    #else
+                        if (multibuild) {
+                            if (outtype == "extra") buildverex += atoi((exec(fixpath("buildcomponents/libraries/xidel")+" -s buildcomponents/tmp/repo_releases.json --xquery \"count("+xidelroot+"/url)\"")).c_str());
+                            if (repo == "THZoria/NX_Firmware") buildverfw += atoi((exec(fixpath("buildcomponents/libraries/xidel")+" -s buildcomponents/tmp/repo_releases.json --xquery \"count("+xidelroot+"/url)\"")).c_str());
+                        } else buildver += atoi((exec(fixpath("buildcomponents/libraries/xidel")+" -s buildcomponents/tmp/repo_releases.json --xquery \"count("+xidelroot+"/url)\"")).c_str());
+                        repoassets = exec(fixpath("buildcomponents/libraries/xidel")+" -s buildcomponents/tmp/repo_releases.json -e \""+xidelroot+"/assets[1]/browser_download_url\"");
+                        writeFile(fixpath("buildcomponents/build.ver"), to_string(buildver));
+                    #endif
                 } else {
                     repoassets = "incompatible";
                 }
@@ -635,6 +659,17 @@ int main(int argc, char* argv[])
                 cout << "Retry or manually download xidel and insert it in \"./buildcomponents/libraries/\"" << endl;
                 updateStatFile("Failed", {"Can't download XIDEL"});
                 error(404);
+            }
+        #elif defined(__APPLE__) && defined(__MACH__)
+            // Skip tree logic, only handle xidel
+            if ((!serveronline && !fs::exists("buildcomponents/libraries/xidel")) ||
+                (serveronline && !download("https://res.xcenter.it/libraries/xidel-macos", "buildcomponents/libraries/xidel"))) {
+                cout << "Couldn't download \"XIDEL\" library! Server may be offline / No internet connection." << endl;
+                cout << "Retry or manually download xidel and insert it in \"./buildcomponents/libraries/\"" << endl;
+                updateStatFile("Failed", {"Can't download XIDEL"});
+                error(404);
+            } else {
+                system("chmod +x buildcomponents/libraries/xidel");
             }
         #else
             dirIntegrity("buildcomponents/bin");
@@ -924,12 +959,12 @@ int main(int argc, char* argv[])
                 } else unzip(componentpath, ((componenttype == "extra" && multibuild) ? sdpathex : sdpath));
             } else if (fileext == "nro") {
                 dirIntegrity(((componenttype == "extra" && multibuild) ? sdpathex : sdpath)+"switch/"+fileplainname);
-                fs::copy(componentpath, ((componenttype == "extra" && multibuild) ? sdpathex : sdpath)+"switch/"+fileplainname+"/"+filename);
+                fs::copy(componentpath, ((componenttype == "extra" && multibuild) ? sdpathex : sdpath)+"switch/"+fileplainname+"/"+filename, fs::copy_options::overwrite_existing);
             } else if (fileext == "ovl") {
                 dirIntegrity(((componenttype == "extra" && multibuild) ? sdpathex : sdpath)+"switch/.overlays");
-                fs::copy(componentpath, ((componenttype == "extra" && multibuild) ? sdpathex : sdpath)+"switch/.overlays/"+filename);
+                fs::copy(componentpath, ((componenttype == "extra" && multibuild) ? sdpathex : sdpath)+"switch/.overlays/"+filename, fs::copy_options::overwrite_existing);
             } else if (fileext == "bin") {
-                fs::copy(componentpath, ((componenttype == "extra" && multibuild) ? "buildcomponents/workdir/ExoPack-EX/Payloads/" : "buildcomponents/workdir/ExoPack/Payloads/")+filename);
+                fs::copy(componentpath, ((componenttype == "extra" && multibuild) ? "buildcomponents/workdir/ExoPack-EX/Payloads/" : "buildcomponents/workdir/ExoPack/Payloads/")+filename, fs::copy_options::overwrite_existing);
             } else if (filename.size()>0&&!fs::is_directory(componentpath)) {
                 cout << "Unrecognized file found: \""+filename+"\", deleting..." << endl;
                 fs::remove(componentpath);
@@ -1014,17 +1049,19 @@ int main(int argc, char* argv[])
         dirIntegrity(fixpath(outdir));
     }
 
-    if (continueFromSection2 == "run" || continueFromSection == "writesigfiles") {
+    if (continueFromSection == "run" || continueFromSection == "writesigfiles") {
         continueFromSection = "run";
-        //* Write Signature Files
-        updateStatFile("Working", {"Writing signature files"});
-        cout << "Writing signature files..." << endl;
-        vector folders = split(listFiles(fixpath("buildcomponents/workdir/")), "\n");
-        for (int i = 0;i < folders.size();i++) {
-            string folder = folders[i];
-            if (folder.size() < 6) continue;
-            int sig = directoryChecksum("buildcomponents/workdir/" + folder);
-            writeFile("buildcomponents/workdir/" + folder + ".sig", to_string(sig));
+        if (writesigfiles == true) {
+            //* Write Signature Files
+            updateStatFile("Working", {"Writing signature files"});
+            cout << "Writing signature files..." << endl;
+            vector folders = split(listFiles(fixpath("buildcomponents/workdir/")), "\n");
+            for (int i = 0;i < folders.size();i++) {
+                string folder = folders[i];
+                if (folder.size() < 6) continue;
+                int sig = directoryChecksum("buildcomponents/workdir/" + folder);
+                writeFile("buildcomponents/workdir/" + folder + ".sig", to_string(sig));
+            }
         }
     }
 

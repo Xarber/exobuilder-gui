@@ -1,0 +1,54 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Global Build C++",
+        "type": "shell",
+        "command": "/opt/homebrew/bin/g++-14", // macOS only; override per platform below
+        "args": [
+          "-std=c++17",
+          "-o",
+          "${fileBasenameNoExtension}-macos",
+          "${file}"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": ["$gcc"],
+        "options": {
+          "cwd": "${fileDirname}"
+        },
+        "presentation": {
+          "reveal": "always"
+        },
+        "windows": {
+          "command": "g++",
+          "args": [
+            "-std=c++17",
+            "-o",
+            "${fileBasenameNoExtension}-windows.exe",
+            "${file}"
+          ]
+        },
+        "linux": {
+          "command": "g++",
+          "args": [
+            "-std=c++17",
+            "-o",
+            "${fileBasenameNoExtension}-linux",
+            "${file}"
+          ]
+        },
+        "osx": {
+          "command": "/opt/homebrew/bin/g++-14",
+          "args": [
+            "-std=c++17",
+            "-o",
+            "${fileBasenameNoExtension}-macos",
+            "${file}"
+          ]
+        }
+      }
+    ]
+  }

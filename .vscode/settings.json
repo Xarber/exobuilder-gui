@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "*.pbd": "html",
+        "*.hbl": "html",
+        "*.cfw": "javascript",
+        "*.hbpack": "html",
+        "*.app": "html",
+        "*.apl": "html",
+        "*.xbf": "html",
+        "*.xnp": "html",
+        "*.sc": "html",
+        "*.guide": "plaintext",
+        "setupsteps": "plaintext",
+        "*.njsc": "javascript",
+        "*.njs": "javascript",
+        "ostream": "cpp",
+        "iostream": "cpp"
+    }
+}
