@@ -1,7 +1,7 @@
 {
   "name": "exobuilder-gui",
   "apptitle": "ExoBuilder",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A simple graphical interface for exobuilder, made with electron js.",
   "main": "index.js",
   "devDependencies": {
@@ -75,20 +75,9 @@
           "./libs"
         ],
         "ignore": [
-          ".env",
-          ".DS_Store",
-          "gittoken.txt",
-          "package-lock.json",
           "node_modules_win",
           "node_modules_dar",
           "node_modules_lin",
-          "games",
-          "uploads",
-          "downloads",
-          "content",
-          "out",
-          "usr",
-          "dist",
           "release-zips",
           "buildcomponents"
         ],
