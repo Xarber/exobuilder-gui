@@ -1,7 +1,8 @@
-const { app, BrowserWindow, ipcMain, dialog, session, Menu, Tray } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, session, Menu, Tray, nativeImage } = require('electron');
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const child_process = require("child_process");
+const packagejson = require('./package.json');
 const fs = require('node:fs');
 const path = require('node:path');
 const https = require('https');
@@ -395,8 +396,40 @@ if (app) {
     });
 
     app.whenReady().then(async () => {
+        app.setName(packagejson.apptitle ?? packagejson.name ?? "Menu");
+        if (process.platform === 'darwin') app.dock.setIcon(icopath + ".png");
         global.mainWindow = createWindow();
 
+        const isMac = process.platform === 'darwin';
+
+        const template = [
+            ...(isMac ? [{
+              label: app.name,
+              submenu: [/*
+                { role: 'about' },
+                { type: 'separator' },*/
+                { role: 'reload' },
+                { role: 'forcereload' },
+                { type: 'separator' },
+                { role: 'togglefullscreen' },
+                { role: 'resetzoom' },
+                { role: 'zoomIn' },
+                { role: 'zoomOut' },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideothers' },
+                { role: 'unhide' },
+                { type: 'separator' },
+                { role: 'toggledevtools' },
+                isMac ? { role: 'close' } : { type: 'separator' },
+                { role: 'quit' }
+              ]
+            }] : []),
+        ];        
+
+        app.on("before-quit", () => {
+            app.isQuitting = true;
+        });
         mainWindow.on("close", (e)=>{
             if (!app.isQuitting) {
                 e.preventDefault();
@@ -405,7 +438,9 @@ if (app) {
             return false;
         });
         var appIcon = null;
-        appIcon = new Tray(icopath+".png");
+        var trayIcon = nativeImage.createFromPath(icopath+".png");
+        trayIcon = trayIcon.resize({ width: 16, height: 16 });
+        appIcon = new Tray(trayIcon);
         var contextMenu = Menu.buildFromTemplate([
             { label: 'Show App', click: ()=>{mainWindow.show()} },
             { label: 'Quit App', click: ()=>{
@@ -416,9 +451,23 @@ if (app) {
         appIcon.setToolTip('ExoBuilder');
         appIcon.setContextMenu(contextMenu);
 
-        app.on('activate', () => {
-            if (BrowserWindow.getAllWindows().length === 0) createWindow();
+        appIcon.on('click', () => {
+            return;
+            if (mainWindow.isVisible()) {
+              mainWindow.hide();
+            } else {
+              mainWindow.show();
+            }
         });
+
+        app.on('activate', () => {
+            const win = BrowserWindow.getAllWindows().find(w => !w.isVisible());
+            if (win) win.show();
+            else createWindow();
+        });
+
+        const menu = Menu.buildFromTemplate(template);
+        Menu.setApplicationMenu(menu);
     });
     
     app.on('window-all-closed', () => {

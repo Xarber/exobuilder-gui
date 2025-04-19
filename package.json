@@ -1,5 +1,6 @@
 {
   "name": "exobuilder-gui",
+  "apptitle": "ExoBuilder",
   "version": "1.0.0",
   "description": "A simple graphical interface for exobuilder, made with electron js.",
   "main": "index.js",
@@ -25,6 +26,8 @@
     "publish": "env-cmd electron-forge publish"
   },
   "build": {
+    "appid": "com.xcenter.exobuildergui",
+    "productname": "ExoNuilder",
     "extraResources": [
       {
         "from": "./libs/",
@@ -47,6 +50,9 @@
     },
     "win": {
       "icon": "resources/libs/Ex0sArc4d3P1C.ico"
+    },
+    "linux": {
+      "icon": "resources/libs/Ex0sArc4d3P1C.png"
     }
   },
   "config": {
