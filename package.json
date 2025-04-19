@@ -6,13 +6,16 @@
   "main": "index.js",
   "devDependencies": {
     "@electron-forge/cli": "^7.8.0",
+    "@electron-forge/maker-deb": "^7.8.0",
     "@electron-forge/maker-dmg": "^7.8.0",
+    "@electron-forge/maker-rpm": "^7.8.0",
     "@electron-forge/maker-squirrel": "^7.8.0",
     "@electron-forge/maker-zip": "^7.8.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.0",
     "@electron-forge/plugin-fuses": "^7.8.0",
     "@electron-forge/publisher-github": "^7.8.0",
     "@electron/fuses": "^1.8.0",
+    "cross-zip": "^4.0.1",
     "electron": "^35.2.0"
   },
   "scripts": {
@@ -20,14 +23,19 @@
     "test-macos": "APP_DEV=true electron .",
     "test-windows": "set APP_DEV=true && electron .",
     "test-prod": "electron .",
+    
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "package-global": "npm run package-macos && npm run package-windows && npm run package-linux",
-    "package-macos": "electron-forge package --platform darwin --arch x64,arm64",
-    "package-windows": "electron-forge package --platform win32 --arch x64,ia32",
-    "package-linux": "electron-forge package --platform linux --arch x64,arm64",
     "make": "electron-forge make",
-    "publish": "env-cmd electron-forge publish"
+    "publish": "env-cmd electron-forge publish",
+
+    "package-all": "npx electron-forge package --platform win32,darwin,linux --arch x64,arm64",
+    "package-windows": "electron-forge package --platform win32 --arch x64,arm64",
+    "package-macos": "electron-forge package --platform darwin --arch x64,arm64",
+    "package-linux": "electron-forge package --platform linux --arch x64,arm64",
+    "publish-packages": "node scripts/release.js",
+    
+    "release": "npm run package-all && npm run publish-packages"
   },
   "build": {
     "appid": "com.xcenter.exobuildergui",
@@ -83,6 +91,28 @@
           "config": {
             "background": "./libs/Ex0sArc4d3P1C.png",
             "format": "ULFO"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {
+            "options": {
+              "icon": "resources/libs/Ex0sArc4d3P1C.png",
+              "categories": [
+                "Utility"
+              ]
+            }
+          }
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {
+            "options": {
+              "icon": "resources/libs/Ex0sArc4d3P1C.png",
+              "categories": [
+                "Utility"
+              ]
+            }
           }
         }
       ],
