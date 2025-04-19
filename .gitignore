@@ -1,13 +1,13 @@
 # Files
 .env
 gittoken.txt
-todo
+#todo
 data/import/options.json
-data/import/methods.txt
+#data/import/methods.txt
 
 # Folders
 .vscode
-libs/ExoBuilder.cpp
+#libs/ExoBuilder.cpp
 node_modules
 node_modules_lin
 node_modules_win

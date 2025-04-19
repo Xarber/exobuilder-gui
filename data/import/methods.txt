@@ -1,0 +1,14 @@
+1. File download
+   Per ogni file crea un id in un file json, aggiornato ad ogni accesso allo shop.
+   Alla lista dei giochi, mandare come link l'ID di download sotto forma di parametro ?download=ID.
+   Al download, controlla l'ID nel file json, se esiste trova il file dalla fonte, e scaricalo.
+   Dopo il download, aggiorna il numero di download e una lista di utenti che hanno scaricato quello specifico file.
+   Esempio {"files": {"Posizione/File.ext":{"info..."}}, "ids": {"id": "Posizione/File.ext"}}
+2. Secure Access (Permette l'accesso a un e un solo IP, che può essere anche quello del server, gestito automaticamente)
+   Quando attivato, per ogni richiesta controlla l'IP dell'utente, se è uguale a quello impostato dall'utente, genera o aggiorna un file json con una key casuale, disponibile solo per un IP e solo per un limite di tempo (30min-1h).
+   Una volta generato il file, passa la chiave temporanea alla parte web. Questa chiave ha tutti i permessi, proprio come la Admin Key.
+   All'utilizzo di una chiave, prima controlla che sia la chiave richiesta normalmente dall'app, se non lo è, controlla nel file json se la chiave è ancora valida, e se l'utente che la usa ha l'IP con lo stesso permesso. Se queste condizioni sono soddisfatte, l'utente avrà accesso, altrimenti negherà l'accesso.
+   Al primo accesso dopo la scadenza della chiave, elimina quest'ultima dal file json.
+   per ogni richiesta completata con successo, il tempo di scadenza della chiave viene resettato a quello di origine, per permettere più richieste consecutive, anche se lunghe.
+3. Smart Search + (Ricerca intelligente per trovare giochi a discapito degli errori)
+   

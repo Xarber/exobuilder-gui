@@ -1,0 +1,28 @@
+Create an update check method for ExoBuilder-gui: https://github.com/electron-delta/electron-sample-app/tree/main
+DELAYED - Create a webui using the PHP script for assets, building on server side, and then downloading final .tar to user (authentication tries user token first, then server token if rate limited); Also bundle the webui in an android app (cordova)
+Add an "Other tools" section, with a list of more tools such as:
+ - DELAYED - Upcoming ExoPack certification (check if it's a valid pack, and if it's updated); Use signature check to actually renew cert
+  + Upload pack certifications to the server, and make them expire after 1 month, to integrate with ExoBot and allow better support
+    as @experts know if the pack is actually updated, trustable and files are probably still not modified.
+ - DELAYED - (After finding a way to do so) embedded custom browser with Google DNS for accessing restricted websites.
+ - OK - If needed, add an option to use lan play client by running it from the app itself.
+ - OK - Create a simple .exbi file containing all the informations exobuilder needs to run
+  - OK - If the file exists as ExoBuilder.exbi, it gets automatically extracted at app launch as base files;
+  - UNTESTED, UNHANDLED - OK - Associate .exbi files with ExoBuilder-gui, so an user can doubleclick to open it.
+ - OK - Upcoming local shop tool
+  + Get the torrent file via a server side script, using the telegram bot, then download it client-side. Lastly, use http to host a local tinfoil server x-shop like to let the users download their games locally, risklessly.
+  | https://stackoverflow.com/questions/46898262/how-to-receive-my-own-telegram-messages-in-node-js-without-bot
+  | https://stackoverflow.com/questions/33000811/downloading-torrent-with-node-js
+  | https://stackoverflow.com/questions/61432970/how-can-i-send-a-message-to-botfather-programmatically
+ - OK - add widgetbot for discord in the app?
+ - OK - Serial checker
+ - OK - Link ExoBuilder with XIDs to sync user data and upload previously downloaded torrent files.
+
+OK - Keep App open in background to keep server and lpc alive
+OK - Multiple parameters (-abcd...)
+OK - Use the status file to recover program after crashes
+OK - Use the status file to better integrate exobuild-gui (e.g. download progress bar) > Also added in app taskbar icon
+OK - Save last run's build version to reuse if --use-old-assets is on.
+OK - When updating the asset list, keep an old version to check which links change, and determine if old packs need to be updated.
+OK - Add a "Download latest firmware" option, always getting the resource from THZoria's NXFirmware github
+OK - Add --multi-build and --write-signature-files options.
