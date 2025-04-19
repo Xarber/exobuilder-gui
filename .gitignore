@@ -1,26 +1,31 @@
-# Files
+# Files & Private
 .env
 .DS_Store
 gittoken.txt
-#todo
 data/import/options.json
-#data/import/methods.txt
+package-lock.json
+.vscode/settings.json
 
-# Folders
-#.vscode
-#libs/ExoBuilder.cpp
+# Node Modules
 node_modules
 node_modules_lin
 node_modules_win
+node_modules_dar
+
+# Private Files
 data/auth/*
 data/nxtitle/*
 data/out
+
+# Automatically Generated
 games
 uploads
 downloads
 content
-usr
 out
+
+# Runtime / Build files
+usr
 dist
 release-zips
 buildcomponents
