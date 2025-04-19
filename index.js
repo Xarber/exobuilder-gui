@@ -420,8 +420,8 @@ if (app) {
                 { role: 'hideothers' },
                 { role: 'unhide' },
                 { type: 'separator' },
-                { role: 'toggledevtools' },
-                isMac ? { role: 'close' } : { type: 'separator' },
+                ...(isDevApp ? [{ role: 'toggledevtools' }] : []),
+                ...(isMac ? [{ role: 'close' }] : []),
                 { role: 'quit' }
               ]
             }] : []),
