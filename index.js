@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const https = require('https');
 const isDevApp = process.env.APP_DEV ? (process.env.APP_DEV.trim() == "true") : false;
+if (process.cwd() === "/") process.chdir(process.resourcesPath ?? app.getAppPath().replace('app.asar', ''));
 
 let exobpathtmp = "";
 switch (process.platform) {
@@ -463,7 +464,7 @@ if (app) {
         app.on('activate', () => {
             const win = BrowserWindow.getAllWindows().find(w => !w.isVisible());
             if (win) win.show();
-            else createWindow();
+            else if (BrowserWindow.getAllWindows().length === 0) createWindow();
         });
 
         const menu = Menu.buildFromTemplate(template);

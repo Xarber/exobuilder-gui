@@ -1,7 +1,7 @@
 {
   "name": "exobuilder-gui",
   "apptitle": "ExoBuilder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple graphical interface for exobuilder, made with electron js.",
   "main": "index.js",
   "devDependencies": {
