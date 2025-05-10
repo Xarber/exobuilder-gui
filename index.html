@@ -994,7 +994,7 @@
             }
             var tok = undefined;
             window.addEventListener("message", e=>{
-                if (index.isDev) console.log(e);
+                if (window.indexjs?.isDev) console.log(e);
                 if (e.data.indexOf('AccessToken: ') === 0 && e.origin.indexOf('authnjs.xcenter.it') != -1) tok = e.data.replace('AccessToken: ', '');
             });
             await busyWait(() => win.closed);
@@ -1028,7 +1028,7 @@
             }
             var tok = undefined;
             window.addEventListener("message", e=>{
-                if (index.isDev) console.log(e);
+                if (window.indexjs?.isDev) console.log(e);
                 if (e.data.indexOf('AccessToken: ') === 0 && e.origin.indexOf('authnjs.xcenter.it') != -1) tok = e.data.replace('AccessToken: ', '');
             });
             await busyWait(() => win.closed);
